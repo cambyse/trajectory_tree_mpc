@@ -7,8 +7,8 @@
 
 #include <ros/package.h>
 
-KomoFactory::KomoFactory()
-    : kin_((ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
+KomoFactory::KomoFactory(const std::string& kin_path)
+    : kin_(kin_path.c_str()) //(ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
 {}
 
 std::shared_ptr< KOMO > KomoFactory::create_komo(uint n_phases, uint steps_per_phase) const

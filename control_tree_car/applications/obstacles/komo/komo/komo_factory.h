@@ -30,7 +30,7 @@ struct Objectives
 class KomoFactory
 {
 public:
-    KomoFactory();
+    KomoFactory(const std::string& kin_path);
     std::shared_ptr< KOMO > create_komo(uint n_phases, uint steps_per_phase) const;
     Objectives ground_komo(const std::shared_ptr< KOMO > & komo,
                            const std::vector<Obstacle> & obstacles,

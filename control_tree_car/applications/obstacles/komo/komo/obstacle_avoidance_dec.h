@@ -31,7 +31,7 @@
 class ObstacleAvoidanceDec : public BehaviorBase
 {
 public:
-    ObstacleAvoidanceDec(BehaviorManager&, int n_obstacles, bool tree, double road_width, double v_desired, int steps_per_phase);
+    ObstacleAvoidanceDec(BehaviorManager&, const std::string& kin_path, int n_obstacles, bool tree, double road_width, double v_desired, int steps_per_phase);
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 

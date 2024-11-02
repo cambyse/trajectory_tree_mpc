@@ -41,7 +41,13 @@ arr to_arr(const std::vector<double> a)
 
 }
 
-ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, int n_obstacles, bool tree, double road_width, double v_desired, int steps_per_phase)
+ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager,
+                                           const std::string& kin_path,
+                                           int n_obstacles,
+                                           bool tree,
+                                           double road_width,
+                                           double v_desired,
+                                           int steps_per_phase)
     : BehaviorBase(behavior_manager)
     , n_obstacles_(n_obstacles)
     , n_branches_(n_branches(n_obstacles, tree))
@@ -51,10 +57,11 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager, in
     , horizon_(5)
     , v_desired_(v_desired)//(50 / 3.6)
     , obstacles_(n_obstacles_, {arr{-10, 0, 0}, 0.0})
+    , komo_factory_(kin_path)
     , komo_tree_(1.0, 0)
     , options_(PARALLEL, true, NOOPT, false)
 {
-    options_.opt.verbose = 0;
+    options_.opt.verbose = 1;
     options_.opt.aulaMuInc = 1;
     options_.muInit = 2.0;
     options_.muInc = 2.0;
@@ -161,6 +168,8 @@ TimeCostPair ObstacleAvoidanceDec::plan()
     auto start = std::chrono::high_resolution_clock::now();
 
     DecOptConstrained<ConstrainedProblem, BeliefState> opt(x_, constrained_problems_, xmasks_, BeliefState(bs), options_);
+    //DecOptConstrained<ConstrainedProblem, AverageUpdater> opt(x_, constrained_problems_, xmasks_, AverageUpdater(), options_);
+
     opt.run();
 
     auto end = std::chrono::high_resolution_clock::now();
