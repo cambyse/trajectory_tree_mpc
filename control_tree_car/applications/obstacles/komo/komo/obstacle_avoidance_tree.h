@@ -25,10 +25,16 @@
 
 #include <visualization_msgs/MarkerArray.h>
 
+#include <Optimization/decentralized_optimizer.h>
+#include <Optimization/decentralized_lagrangian.h>
+
+//static uint n_branches(uint n_obstacles, bool tree) { return tree ? pow(2.0, n_obstacles) : 1; }
+
+// Use for unit testing only and timing!
 class ObstacleAvoidanceTree : public BehaviorBase
 {
 public:
-    ObstacleAvoidanceTree(BehaviorManager&, int steps_per_phase);
+    ObstacleAvoidanceTree(BehaviorManager&, const std::string& kin_path, int steps_per_phase);
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 
@@ -78,6 +84,13 @@ private:
     arr scales_all_;
 
     std::shared_ptr<KOMO> komo_;
+    std::vector<std::shared_ptr<KOMO::Conv_MotionProblem_GraphProblem>> converters_;
+    std::vector<std::shared_ptr<ConstrainedProblem>> constrained_problems_;
+
+    arr x_;
+    std::vector<arr> xmasks_;
+
+    DecOptConfig options_;
 };
 
 

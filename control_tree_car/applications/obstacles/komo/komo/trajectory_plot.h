@@ -6,7 +6,7 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <nav_msgs/Path.h>
 
-#include "gnuplot-iostream.h"
+#include <common/gnuplot-iostream.h>
 
 
 struct PlotAxis

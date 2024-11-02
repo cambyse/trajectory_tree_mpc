@@ -149,6 +149,57 @@ void unify_prefix(std::vector<std::shared_ptr<KOMO>>& komos)
     }
 }
 
+void init_komo_with_constant_velocity_trajectory(const std::shared_ptr<KOMO> & komo, const OdometryState & o, uint steps, const intA& vars_all_order_1)
+{
+  const double vx = o.v * cos(o.yaw);
+  const double vy = o.v * sin(o.yaw);
+  const double dx = vx * 1.0 / steps;
+  const double dy = vy * 1.0 / steps;
+
+  // set initial position
+  komo->configurations(2)->q(0) = o.x;
+  komo->configurations(2)->q(1) = o.y;
+  komo->configurations(2)->q(2) = o.yaw;
+
+  // set prefix based on current pose and velocity
+  komo->configurations(1)->q(0) = o.x - dx;
+  komo->configurations(1)->q(1) = o.y - dy;
+  komo->configurations(1)->q(2) = o.yaw;
+
+  komo->configurations(0)->q(0) = o.x - 2.0 * dx;
+  komo->configurations(0)->q(1) = o.y - 2.0 * dy;
+  komo->configurations(0)->q(2) = o.yaw;
+
+  // future trajectory
+  for(auto s = 0; s < vars_all_order_1.d0; s++)
+  {
+    const auto& j = vars_all_order_1(s, 1);
+
+    if(j > 0)
+    {
+      const auto& i = vars_all_order_1(s, 0);
+
+      //std::cout << "i->j: " << i << "->" << j << std::endl;
+
+      komo->configurations(j + 2)->q(0) = komo->configurations(i + 2)->q(0) + dx;
+      komo->configurations(j + 2)->q(1) = komo->configurations(i + 2)->q(1) + dy;
+      komo->configurations(j + 2)->q(2) = o.yaw;
+    }
+  }
+//  const double vx = o.v * cos(o.yaw);
+//  const double vy = o.v * sin(o.yaw);
+//  const double dx = vx * 1.0 / steps;
+//  const double dy = vy * 1.0 / steps;
+
+//  // shift trajectory
+//  for(auto i=0; i < trajectory.size(); ++i)
+//  {
+//      trajectory[i].x = o.x + (i-2) * dx;
+//      trajectory[i].y = o.y + (i-2) * dy;
+//      trajectory[i].yaw = o.yaw;
+//  }
+}
+
 //int shift_komos(const std::shared_ptr<KOMO> & komo, const OdometryState & o, uint steps)
 //{
 //    // returns the number of points that are skipped
@@ -444,4 +495,46 @@ void update_x(arr&x, const std::vector<std::shared_ptr<KOMO>>& komos, const std:
     }
 
     x = new_x;
+}
+
+void update_x(arr&x, const std::shared_ptr<KOMO>& komo)
+{
+  std::cout << "x.d0: " << x.d0 << std::endl;
+
+  const auto dim = komo->world.q.d0;
+
+  for(auto i = 0; i < komo->configurations.d0 - 2; ++i)
+  {
+    for(auto k = 0; k < dim; ++k)
+    {
+      x(dim * i + k) = komo->configurations(i+2)->q(k);
+
+      //std::cout << "x.d0: " << x.d0 << std::endl;
+
+    }
+  }
+//    const auto dim = komos.front()->world.q.d0;
+//    arr contribs = zeros(x.d0);
+//    arr new_x = zeros(x.d0);
+
+//    for(auto i = 0; i < komos.size(); ++i)
+//    {
+//        for(auto j = 0; j < vars[i].size(); ++j)
+//        {
+//            uint J = vars[i](j, 0);
+//            for(auto k = 0; k < dim; ++k)
+//            {
+//              new_x(dim * J + k) += komos[i]->configurations(j+2)->q(k);
+//              contribs(dim * J + k) += 1;
+//            }
+//        }
+//    }
+
+//    // average
+//    for(auto j = 0; j < x.d0; ++j)
+//    {
+//        new_x(j) /= contribs(j);
+//    }
+
+//    x = new_x;
 }
