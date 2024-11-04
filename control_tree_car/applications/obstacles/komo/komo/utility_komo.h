@@ -9,6 +9,9 @@
 
 #include <common/utility.h>
 #include <unordered_map>
+#include <tree_builder.h>
+#include <circular_obstacle.h>
+
 
 class Objective;
 class KOMO;
@@ -40,3 +43,74 @@ void update_komo(const std::vector<Pose2D>& trajectory, const std::shared_ptr<KO
 void update_x(arr&x, const std::vector<std::shared_ptr<KOMO>>& komos, const std::vector<intA>& vars);
 void update_x(arr&x, const std::shared_ptr<KOMO>& komo);
 
+void convert(uint n_branches, uint horizon, mp::TreeBuilder& tb);
+std::vector<double> fuse_probabilities(const std::vector<Obstacle>&, bool tree, std::vector<std::vector<bool>> &);
+void convert(uint n_branches, uint horizon, mp::TreeBuilder& komo_tree_);
+std::vector<Obstacle> get_relevant_obstacles(const std::vector<Obstacle>& obstacles, const std::vector<bool>& activities);
+
+template<bool tree>
+inline std::vector<double> fuse(const std::vector<Obstacle>& obstacles, std::vector<std::vector<bool>> & activities)
+{
+
+}
+
+template<>
+inline std::vector<double> fuse<true>(const std::vector<Obstacle>& obstacles, std::vector<std::vector<bool>> & activities)
+{
+    const uint n = pow(2.0, obstacles.size());
+
+    std::vector<double> probabilities(n, 0.0);
+    activities = std::vector<std::vector<bool>>(n);
+
+    // compute activities
+    for(auto i = 0; i < obstacles.size(); ++i)
+    {
+      bool active = true;
+      uint rythm = pow(2.0, double(i));
+      for(auto j = 0; j < n; ++j)
+      {
+        if(j > 0 && j % rythm == 0)
+        {
+          active = !active;
+        }
+        activities[j].push_back(active);
+      }
+    }
+
+    // fuse
+    for(auto j = 0; j < n; ++j)
+    {
+      auto p = 1.0;
+      for(auto i = 0; i < obstacles.size(); ++i)
+      {
+        if(activities[j][i])
+          p *= obstacles[i].p;
+        else
+          p *= (1.0 - obstacles[i].p);
+      }
+
+      probabilities[j] = p;
+    }
+
+    return probabilities;
+}
+
+template<>
+inline std::vector<double> fuse<false>(const std::vector<Obstacle>& obstacles, std::vector<std::vector<bool>> & activities)
+{
+    const uint n = 1;
+
+    std::vector<double> probabilities(n, 0.0);
+    activities = std::vector<std::vector<bool>>(n);
+
+    // compute activities
+    for(auto i = 0; i < obstacles.size(); ++i)
+    {
+      activities[0].push_back(true);
+    }
+
+    // fuse
+    probabilities[0] = 1.0;
+
+    return probabilities;
+}

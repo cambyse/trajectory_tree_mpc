@@ -499,8 +499,6 @@ void update_x(arr&x, const std::vector<std::shared_ptr<KOMO>>& komos, const std:
 
 void update_x(arr&x, const std::shared_ptr<KOMO>& komo)
 {
-  std::cout << "x.d0: " << x.d0 << std::endl;
-
   const auto dim = komo->world.q.d0;
 
   for(auto i = 0; i < komo->configurations.d0 - 2; ++i)
@@ -537,4 +535,53 @@ void update_x(arr&x, const std::shared_ptr<KOMO>& komo)
 //    }
 
 //    x = new_x;
+}
+
+
+std::vector<Obstacle> get_relevant_obstacles(const std::vector<Obstacle> & obstacles, const std::vector<bool>& activities)
+{
+  std::vector<Obstacle> obs;
+  for(auto j = 0; j < activities.size(); ++j)
+  {
+    if(activities[j])
+    {
+      if(obstacles[j].p >= 0.01)
+        obs.push_back(obstacles[j]);
+      else
+        obs.push_back(Obstacle{{-10.0, 0, 0}, 0, 0});
+    }
+  }
+  return obs;
+}
+
+void convert(uint n_branches, uint horizon, mp::TreeBuilder& tb)
+{
+  uint j = 1;
+
+  for(;j <= horizon; ++j)
+  {
+    tb.add_edge(j-1, j);
+  }
+
+  --j;
+
+  for(auto i = 1; i < n_branches; ++i)
+  {
+    ++j;
+    tb.add_edge(1, j);
+
+    for(auto k = 3; k <= horizon; ++k)
+    {
+        ++j;
+        tb.add_edge(j-1, j);
+    }
+  }
+}
+
+std::vector<double> fuse_probabilities(const std::vector<Obstacle>& obstacles, bool tree, std::vector<std::vector<bool>> & activities)
+{
+    if(tree)
+        return fuse<true>(obstacles, activities);
+    else
+        return fuse<false>(obstacles, activities);
 }

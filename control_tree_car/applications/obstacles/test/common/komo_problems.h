@@ -2,6 +2,7 @@
 
 #include <komo/obstacle_avoidance_linear.h>
 #include <komo/obstacle_avoidance_tree.h>
+#include <komo/obstacle_avoidance_tree_n.h>
 #include <komo/obstacle_avoidance_dec.h>
 #include <komo/trajectory_plot.h>
 
@@ -21,23 +22,17 @@ struct Scenario
 Scenario create_scenario_1(double p);
 Scenario create_scenario_2();
 Scenario create_scenario_3();
+Scenario create_scenario_4();
+Scenario create_scenario_5();
 
 template<typename T>
 void plan_impl(const Scenario & scenario, BehaviorManager& manager, T& behavior, bool _plot, bool _plot_debug)
 {
-  std::cout << "plan_impl A.." << std::endl;
-
   manager.odometry_callback(scenario.odo);
-
-  std::cout << "plan_impl A.1.." << std::endl;
 
   behavior->desired_speed_callback(scenario.desired_velocity);
 
-  std::cout << "plan_impl A.2.." << std::endl;
-
   behavior->obstacle_callback(scenario.obstacles);
-
-  std::cout << "plan_impl B.." << std::endl;
 
   auto plotter = [&]()
   {
@@ -60,8 +55,6 @@ void plan_impl(const Scenario & scenario, BehaviorManager& manager, T& behavior,
   {
     plotter();
   }
-
-  std::cout << "plan_impl C.." << std::endl;
 }
 
 class KomoJointTest : public ::testing::Test
@@ -84,6 +77,74 @@ public:
 
   BehaviorManager manager;
   std::shared_ptr<ObstacleAvoidanceTree> behavior;
+};
+
+class KomoJointNTest : public ::testing::Test
+{
+public:
+  void SetUp()
+  {
+    ros::Time::init();
+
+    behavior = std::make_shared<ObstacleAvoidanceTreeN>(manager, std::string{"/home/camille/git/catkin_ws/src/icra_2021/control_tree_car/data/LGP-real-time.g"}, n_obstacles, 4);
+
+    manager.register_behavior("collision_avoidance", behavior);
+    manager.set_current_behavior("collision_avoidance");
+  }
+
+  void plan(const Scenario & scenario, bool plot, bool plot_debug = false)
+  {
+    plan_impl(scenario, manager, behavior, plot, plot_debug);
+  }
+
+  BehaviorManager manager;
+  std::shared_ptr<ObstacleAvoidanceTreeN> behavior;
+  int n_obstacles = 1;
+};
+
+class KomoJointNTest1Obstacle : public KomoJointNTest
+{
+   public:
+    KomoJointNTest1Obstacle()
+    {
+        n_obstacles = 1;
+    }
+};
+
+class KomoJointNTest2Obstacles : public KomoJointNTest
+{
+   public:
+    KomoJointNTest2Obstacles()
+    {
+        n_obstacles = 2;
+    }
+};
+
+class KomoJointNTest3Obstacles : public KomoJointNTest
+{
+   public:
+    KomoJointNTest3Obstacles()
+    {
+        n_obstacles = 3;
+    }
+};
+
+class KomoJointNTest4Obstacles : public KomoJointNTest
+{
+   public:
+    KomoJointNTest4Obstacles()
+    {
+        n_obstacles = 4;
+    }
+};
+
+class KomoJointNTest5Obstacles : public KomoJointNTest
+{
+   public:
+    KomoJointNTest5Obstacles()
+    {
+        n_obstacles = 5;
+    }
 };
 
 class KomoDecTest : public ::testing::Test
@@ -119,21 +180,40 @@ class KomoDecTest1Obstacle : public KomoDecTest
     }
 };
 
-class KomoDecTest2Obstacle : public KomoDecTest
+class KomoDecTest2Obstacles : public KomoDecTest
 {
   public:
-    KomoDecTest2Obstacle()
+    KomoDecTest2Obstacles()
     {
         n_obstacles = 2;
     }
 };
 
-class KomoDecTest3Obstacle : public KomoDecTest
+class KomoDecTest3Obstacles : public KomoDecTest
 {
   public:
-    KomoDecTest3Obstacle()
+    KomoDecTest3Obstacles()
     {
         n_obstacles = 3;
+    }
+};
+
+
+class KomoDecTest4Obstacles : public KomoDecTest
+{
+  public:
+    KomoDecTest4Obstacles()
+    {
+        n_obstacles = 4;
+    }
+};
+
+class KomoDecTest5Obstacles : public KomoDecTest
+{
+  public:
+    KomoDecTest5Obstacles()
+    {
+        n_obstacles = 5;
     }
 };
 

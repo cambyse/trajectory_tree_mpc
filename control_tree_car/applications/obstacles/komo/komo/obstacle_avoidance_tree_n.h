@@ -6,7 +6,6 @@
 #include <boost/bind.hpp>
 #include <chrono>
 #include <memory>
-#include <functional>
 
 #include <Eigen/Dense>
 
@@ -15,23 +14,26 @@
 #include <std_msgs/Float32.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
 
 #include <KOMO/komo.h>
-#include <komo/utility_komo.h>
 
 #include <tree_builder.h>
+#include <car_kinematic.h>
+#include <velocity.h>
+#include <axis_bound.h>
 #include <circular_obstacle.h>
 #include <komo/komo_factory.h>
+
+#include <visualization_msgs/MarkerArray.h>
 
 #include <Optimization/decentralized_optimizer.h>
 #include <Optimization/decentralized_lagrangian.h>
 
-class ObstacleAvoidanceDec : public BehaviorBase
+// Use for unit testing only and timing!
+class ObstacleAvoidanceTreeN : public BehaviorBase
 {
 public:
-    ObstacleAvoidanceDec(BehaviorManager&, const std::string& kin_path, int n_obstacles, bool tree, double road_width, double v_desired, int steps_per_phase);
+    ObstacleAvoidanceTreeN(BehaviorManager&, const std::string& kin_path, int n_obstacles, int steps_per_phase);
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 
@@ -41,21 +43,20 @@ public:
 
     std::vector<nav_msgs::Path> get_trajectories();
 
-    void set_optim_callback(const std::function<void()>& callback) { options_.callback = callback; }
+    void set_optim_callback(const std::function<void()>& _) {}
 
     static uint n_branches(uint n_obstacles, bool tree) { return tree ? pow(2.0, n_obstacles) : 1; }
 
 private:
     void init_tree();
     void update_groundings();
-    void init_optimization_variable();
 
 private:
     // params
     const uint n_obstacles_; // number of obstacles
     const uint n_branches_; // number of branches
-    const bool tree_;
-    const double road_width_;
+
+    rai::KinematicWorld kin_;
     const uint horizon_; // planning horizon number of phases ~ [s]
     const uint steps_;
 
@@ -66,25 +67,27 @@ private:
     // komo
     KomoFactory komo_factory_;
 
-    // objectives
+    // functional
     std::vector<Objectives> objectivess_;
 
     // state;
     mp::TreeBuilder komo_tree_;
 
-    std::vector<std::shared_ptr<KOMO>> komos_;
+    std::vector<double> belief_state_;
+
+    std::vector<intA> varss_branch_order_0_;
+    std::vector<intA> varss_branch_order_1_;
+    std::vector<intA> varss_branch_order_2_;
+    intA vars_all_order_1_;
+
+    std::shared_ptr<KOMO> komo_;
     std::vector<std::shared_ptr<KOMO::Conv_MotionProblem_GraphProblem>> converters_;
     std::vector<std::shared_ptr<ConstrainedProblem>> constrained_problems_;
-    DecOptConfig options_;
 
     arr x_;
     std::vector<arr> xmasks_;
-    std::vector<intA> vars_; // uncompressed vars (dual of xmasks)
-    std::vector<double> belief_state_;
 
-    intA vars_branch_order_0_; // comressed var (hence all the same)
-    intA vars_branch_order_1_;
-    intA vars_branch_order_2_;
+    DecOptConfig options_;
 };
 
 

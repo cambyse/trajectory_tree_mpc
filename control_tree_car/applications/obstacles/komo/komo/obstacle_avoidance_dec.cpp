@@ -13,22 +13,6 @@
 namespace
 {
 
-std::vector<Obstacle> get_relevant_obstacles(const std::vector<Obstacle> & obstacles, const std::vector<bool>& activities)
-{
-  std::vector<Obstacle> obs;
-  for(auto j = 0; j < activities.size(); ++j)
-  {
-    if(activities[j])
-    {
-      if(obstacles[j].p >= 0.01)
-        obs.push_back(obstacles[j]);
-      else
-        obs.push_back(Obstacle{{-10.0, 0, 0}, 0, 0});
-    }
-  }
-  return obs;
-}
-
 arr to_arr(const std::vector<double> a)
 {
     arr b = zeros(a.size());
@@ -162,6 +146,7 @@ TimeCostPair ObstacleAvoidanceDec::plan()
     // update the optim variable (since komos have been changed)
     update_x(x_, komos_, vars_);
     auto bs = to_arr(belief_state_);
+
     //options_.checkGradients = true;
 
     // run
@@ -175,7 +160,7 @@ TimeCostPair ObstacleAvoidanceDec::plan()
     auto end = std::chrono::high_resolution_clock::now();
     float execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
-    ROS_INFO( "[tree] execution time (ms): %f", execution_time_us / 1000 );
+    ROS_INFO( "[tree dec] execution time (ms): %f", execution_time_us / 1000 );
 
     // evaluate costs
     auto Gs = get_traj_start(komos_.front()->configurations);
@@ -216,7 +201,7 @@ void ObstacleAvoidanceDec::init_tree()
 {
   convert(n_branches_, horizon_, komo_tree_);
 
-  auto leaf = komo_tree_.get_leaves().front();
+  const auto leaf = komo_tree_.get_leaves().front();
   vars_branch_order_0_ = komo_tree_.get_vars({0.0, horizon_}, leaf, 0, steps_);
   vars_branch_order_1_ = komo_tree_.get_vars({0.0, horizon_}, leaf, 1, steps_);
   vars_branch_order_2_ = komo_tree_.get_vars({0.0, horizon_}, leaf, 2, steps_);
@@ -277,102 +262,3 @@ void ObstacleAvoidanceDec::init_optimization_variable()
 }
 
 //-----------free functions----------------------
-
-template<bool tree>
-std::vector<double> fuse(const std::vector<Obstacle>& obstacles, std::vector<std::vector<bool>> & activities)
-{
-
-}
-
-template<>
-std::vector<double> fuse<true>(const std::vector<Obstacle>& obstacles, std::vector<std::vector<bool>> & activities)
-{
-    const uint n = pow(2.0, obstacles.size());
-
-    std::vector<double> probabilities(n, 0.0);
-    activities = std::vector<std::vector<bool>>(n);
-
-    // compute activities
-    for(auto i = 0; i < obstacles.size(); ++i)
-    {
-      bool active = true;
-      uint rythm = pow(2.0, double(i));
-      for(auto j = 0; j < n; ++j)
-      {
-        if(j > 0 && j % rythm == 0)
-        {
-          active = !active;
-        }
-        activities[j].push_back(active);
-      }
-    }
-
-    // fuse
-    for(auto j = 0; j < n; ++j)
-    {
-      auto p = 1.0;
-      for(auto i = 0; i < obstacles.size(); ++i)
-      {
-        if(activities[j][i])
-          p *= obstacles[i].p;
-        else
-          p *= (1.0 - obstacles[i].p);
-      }
-
-      probabilities[j] = p;
-    }
-
-    return probabilities;
-}
-
-template<>
-std::vector<double> fuse<false>(const std::vector<Obstacle>& obstacles, std::vector<std::vector<bool>> & activities)
-{
-    const uint n = 1;
-
-    std::vector<double> probabilities(n, 0.0);
-    activities = std::vector<std::vector<bool>>(n);
-
-    // compute activities
-    for(auto i = 0; i < obstacles.size(); ++i)
-    {
-      activities[0].push_back(true);
-    }
-
-    // fuse
-    probabilities[0] = 1.0;
-
-    return probabilities;
-}
-
-std::vector<double> fuse_probabilities(const std::vector<Obstacle>& obstacles, bool tree, std::vector<std::vector<bool>> & activities)
-{
-    if(tree)
-        return fuse<true>(obstacles, activities);
-    else
-        return fuse<false>(obstacles, activities);
-}
-
-void convert(uint n_branches, uint horizon, mp::TreeBuilder& tb)
-{
-  uint j = 1;
-
-  for(;j <= horizon; ++j)
-  {
-    tb.add_edge(j-1, j);
-  }
-
-  --j;
-
-  for(auto i = 1; i < n_branches; ++i)
-  {
-    ++j;
-    tb.add_edge(1, j);
-
-    for(auto k = 3; k <= horizon; ++k)
-    {
-        ++j;
-        tb.add_edge(j-1, j);
-    }
-  }
-}

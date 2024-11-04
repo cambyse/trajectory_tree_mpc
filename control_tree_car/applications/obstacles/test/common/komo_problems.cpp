@@ -66,18 +66,41 @@ Scenario create_scenario_1(double p)
 
 Scenario create_scenario_2()
 {
+  const auto p = 0.4;
   const auto odo = create_odo(0, 0, 10);
   const auto desired_velocity = create_desired_speed(10);
-  const auto obstacles = ObstaclesBuilder().add(15, 1.0, 0.02).add(22.5, 0.1, 0.02).build();
+  const auto obstacles = ObstaclesBuilder().add(20, 1.5, p).add(30.0, -1.5, p).build();
 
   return {odo, desired_velocity, obstacles};
 }
 
 Scenario create_scenario_3()
 {
+  const auto p = 0.4;
   const auto odo = create_odo(0, 0, 10);
   const auto desired_velocity = create_desired_speed(10);
-  const auto obstacles = ObstaclesBuilder().add(20, 1, 0.5).add(25, -1, 0.3).add(100, 1.0, 0.1).build();
+  const auto obstacles = ObstaclesBuilder().add(20, 1.5, p).add(30.0, -1.5, p).add(40.0, 1.5, p).build();
+
+  return {odo, desired_velocity, obstacles};
+}
+
+Scenario create_scenario_4()
+{
+  const auto p = 0.4;
+  const auto odo = create_odo(0, 0, 10);
+  const auto desired_velocity = create_desired_speed(10);
+  const auto obstacles = ObstaclesBuilder().add(20, 1.5, p).add(30.0, -1.5, p).add(40.0, 1.5, p).add(50.0, -1.5, p).build();
+
+  return {odo, desired_velocity, obstacles};
+}
+
+Scenario create_scenario_5()
+{
+  const auto p = 0.4;
+  const auto odo = create_odo(0, 0, 10);
+  const auto desired_velocity = create_desired_speed(10);
+  //const auto obstacles = ObstaclesBuilder().add(20, 1.5, 0.2).add(32.5, -1.5, 0.2).add(45.0, 1.5, 0.2).add(50.0, 2.0, 0.2).add(65.0, -2.0, 0.2).build();
+  const auto obstacles = ObstaclesBuilder().add(20, 1.5, p).add(30.0, -1.5, p).add(40.0, 1.5, p).add(50.0, -1.5, p).add(60.0, 1.5, p).build();
 
   return {odo, desired_velocity, obstacles};
 }
