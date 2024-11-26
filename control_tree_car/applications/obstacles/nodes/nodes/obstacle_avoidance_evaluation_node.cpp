@@ -20,8 +20,9 @@ namespace
 class TrajEvaluator
 {
 public:
-    TrajEvaluator(int steps_per_phase, double road_width, double v_desired)
-        : steps_per_phase_(steps_per_phase)
+    TrajEvaluator(const std::string& kin_path, int steps_per_phase, double road_width, double v_desired)
+        : komo_factory_(kin_path)
+        , steps_per_phase_(steps_per_phase)
     {
         komo_ = komo_factory_.create_komo(2, steps_per_phase);
         objectives_ = komo_factory_.ground_komo(komo_, {}, road_width, v_desired);
@@ -144,7 +145,7 @@ int main(int argc, char **argv)
     std::ofstream ofs(filename(n));
 
     // evaluation
-    TrajEvaluator evaluator(steps_per_phase, road_width, v_desired);
+    TrajEvaluator evaluator(ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g", steps_per_phase, road_width, v_desired);
 
     boost::function<void(const nav_msgs::Path::ConstPtr& msg)> trajectory_callback =
             boost::bind(&TrajEvaluator::trajectory_callback, &evaluator, _1);

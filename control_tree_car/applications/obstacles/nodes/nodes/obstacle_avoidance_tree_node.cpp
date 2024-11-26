@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     BehaviorManager manager;
 
     // instanciate behaviors
-    auto obstacle_avoidance_tree = std::shared_ptr<BehaviorType>(new BehaviorType(manager, n_obstacles, tree, road_width, v_desired, steps_per_phase));
+    auto obstacle_avoidance_tree = std::shared_ptr<BehaviorType>(new BehaviorType(manager, ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g", n_obstacles, tree, road_width, v_desired, steps_per_phase));
     manager.register_behavior("ObstacleAvoidanceTree", obstacle_avoidance_tree);
     manager.set_current_behavior("ObstacleAvoidanceTree");
 
