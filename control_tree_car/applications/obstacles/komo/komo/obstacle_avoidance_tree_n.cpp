@@ -8,13 +8,13 @@
 #include <komo/utility_komo.h>
 
 
-ObstacleAvoidanceTreeN::ObstacleAvoidanceTreeN(BehaviorManager& behavior_manager, const std::string& kin_path, int n_obstacles, int steps_per_phase)
+ObstacleAvoidanceTreeN::ObstacleAvoidanceTreeN(BehaviorManager& behavior_manager, const std::string& kin_path, int n_obstacles, double horizon, int steps_per_phase)
     : BehaviorBase(behavior_manager)
     , n_obstacles_(n_obstacles)
     , n_branches_(n_branches(n_obstacles, true))
     , kin_(kin_path.c_str()) //(ros::package::getPath("control_tree_car") + "/data/LGP-real-time.g").c_str())
     , steps_(steps_per_phase)
-    , horizon_(5)
+    , horizon_(horizon)
     , v_desired_(1.0)
     , obstacles_(n_obstacles_, {arr{-10, 0, 0}, 0.0})
     , komo_factory_(kin_path)
@@ -127,7 +127,7 @@ TimeCostPair ObstacleAvoidanceTreeN::plan()
     // init
     auto o = manager_.odometry();
 
-    init_komo_with_constant_velocity_trajectory(komo_, o, steps_, vars_all_order_1_); // NIY!
+    init_komo_with_constant_velocity_trajectory(komo_, o, steps_, vars_all_order_1_);
     update_x(x_, komo_);
     // reset
 
@@ -189,15 +189,19 @@ void ObstacleAvoidanceTreeN::init_tree()
 
   for(std::size_t i = 0; i < n_branches_; ++i)
   {
-    auto vars_branch_1_order_0_ = komo_tree_.get_vars({0.0, horizon_}, komo_tree_.get_leaves()[i], 0, steps_);
-    auto vars_branch_1_order_1_ = komo_tree_.get_vars({0.0, horizon_}, komo_tree_.get_leaves()[i], 1, steps_);
-    auto vars_branch_1_order_2_ = komo_tree_.get_vars({0.0, horizon_}, komo_tree_.get_leaves()[i], 2, steps_);
+    auto vars_branch_order_0_ = komo_tree_.get_vars({0.0, horizon_}, komo_tree_.get_leaves()[i], 0, steps_);
+    auto vars_branch_order_1_ = komo_tree_.get_vars({0.0, horizon_}, komo_tree_.get_leaves()[i], 1, steps_);
+    auto vars_branch_order_2_ = komo_tree_.get_vars({0.0, horizon_}, komo_tree_.get_leaves()[i], 2, steps_);
 
-    varss_branch_order_0_.push_back(vars_branch_1_order_0_);
-    varss_branch_order_1_.push_back(vars_branch_1_order_1_);
-    varss_branch_order_2_.push_back(vars_branch_1_order_2_);
+    varss_branch_order_0_.push_back(vars_branch_order_0_);
+    varss_branch_order_1_.push_back(vars_branch_order_1_);
+    varss_branch_order_2_.push_back(vars_branch_order_2_);
+  }
 
-    vars_all_order_1_.append(vars_branch_1_order_1_);
+  vars_all_order_1_.append(komo_tree_.get_vars({0.0, horizon_}, komo_tree_.get_leaves()[0], 1, steps_));
+  for(std::size_t i = 1; i < n_branches_; ++i)
+  {
+    vars_all_order_1_.append(komo_tree_.get_vars({1.0, horizon_}, komo_tree_.get_leaves()[i], 1, steps_));
   }
 }
 

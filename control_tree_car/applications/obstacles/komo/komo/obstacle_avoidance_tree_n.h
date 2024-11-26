@@ -33,7 +33,7 @@
 class ObstacleAvoidanceTreeN : public BehaviorBase
 {
 public:
-    ObstacleAvoidanceTreeN(BehaviorManager&, const std::string& kin_path, int n_obstacles, int steps_per_phase);
+    ObstacleAvoidanceTreeN(BehaviorManager&, const std::string& kin_path, int n_obstacles, double horizon, int steps_per_phase);
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 
@@ -79,6 +79,7 @@ private:
     std::vector<intA> varss_branch_order_1_;
     std::vector<intA> varss_branch_order_2_;
     intA vars_all_order_1_;
+    intA vars_all_order_2_;
 
     std::shared_ptr<KOMO> komo_;
     std::vector<std::shared_ptr<KOMO::Conv_MotionProblem_GraphProblem>> converters_;

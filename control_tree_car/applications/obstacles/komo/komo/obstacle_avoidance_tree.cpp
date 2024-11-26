@@ -162,7 +162,7 @@ TimeCostPair ObstacleAvoidanceTree::plan()
     auto end = std::chrono::high_resolution_clock::now();
     float execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
-    ROS_INFO( "[tree] execution time (ms): %f", execution_time_us / 1000 );
+    ROS_INFO( "[tree joint] execution time (ms): %f", execution_time_us / 1000 );
 
     // evaluate costs
     auto Gs = get_traj_start(komo_->configurations);
@@ -241,6 +241,7 @@ void ObstacleAvoidanceTree::update_tree(double p)
     scales_all_ = tree_.get_scales({0.0, 5.0}, 5, steps_);
     scales_all_.append(tree_.get_scales({1.0, 5.0}, 9, steps_));
 
+    assert(vars_all_order_0_.d0 == scales_all_.d0);
     assert(vars_all_order_1_.d0 == scales_all_.d0);
     assert(vars_all_order_2_.d0 == scales_all_.d0);
 }
