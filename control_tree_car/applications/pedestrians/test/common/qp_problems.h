@@ -5,6 +5,7 @@
 #include <qp/QP_constraints.h>
 #include <qp/QP_tree_solver_base.h>
 #include <qp/control_tree_plot.h>
+#include <Optimization/qp_lagrangian.h>
 
 #include <gtest/gtest.h>
 
@@ -38,7 +39,7 @@ public:
  protected:
     VectorXd plan_OSQP(const QP_problem &pb, bool plot = false, const std::string & filename = "");
     VectorXd plan_JointQP(const QP_problem &pb, bool plot = false, const std::string & filename = "");
-    VectorXd plan_DecQP(const QP_problem &pb, bool plot = false, const std::string & filename = "");
+    VectorXd plan_DecQP(const QP_problem &pb, bool plot = false, const std::string & filename = "", Mode scheduling = PARALLEL);
 
     void plot_XU(const VectorXd& X, const VectorXd& U, const QP_problem &pb) const;
     void save_XU(const VectorXd& X, const VectorXd& U, const QP_problem &pb, const std::string & filename) const;

@@ -3,9 +3,9 @@
 
 //----Joint------------------------//
 
-QP_tree_problem_JointQP::QP_tree_problem_JointQP(const MPC_model & mpc, double u_min, double u_max)
+QP_tree_problem_JointQP::QP_tree_problem_JointQP(const MPC_model & mpc, double u_min, double u_max, CallBackType run_start_callback, CallBackType run_end_callback)
     : QP_tree_joint_solver_base(mpc, u_min, u_max)
-    , options(PARALLEL, false, NOOPT, false)
+    , options(PARALLEL, false, NOOPT, false, {}, run_start_callback, run_end_callback)
 {
   options.opt.verbose = 0;
 }
@@ -33,11 +33,11 @@ VectorXd QP_tree_problem_JointQP::call_solver()
 
 //----Dec---------------------------//
 
-QP_tree_problem_DecQP::QP_tree_problem_DecQP(const MPC_model & mpc, double u_min, double u_max)
+QP_tree_problem_DecQP::QP_tree_problem_DecQP(const MPC_model & mpc, double u_min, double u_max, Mode scheduling, CallBackType run_start_callback, CallBackType run_end_callback)
   : QP_tree_solver_base(mpc, u_min, u_max)
-  , options(PARALLEL, true, NOOPT, false)
+  , options(scheduling, true, NOOPT, false, {}, run_start_callback, run_end_callback)
 {
-  options.opt.verbose = 0;
+  options.opt.verbose = 1;
   options.opt.aulaMuInc = 1;
 }
 

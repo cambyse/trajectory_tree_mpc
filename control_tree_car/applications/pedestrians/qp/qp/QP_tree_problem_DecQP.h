@@ -18,7 +18,8 @@ class QP_tree_problem_JointQP : public QP_tree_joint_solver_base
 {
 public:
     QP_tree_problem_JointQP(const MPC_model & mpc,
-                    double u_min, double u_max);
+                            double u_min, double u_max,
+                            CallBackType run_start_callback = {}, CallBackType run_end_callback = {});
 
 private:
     VectorXd call_solver() override;
@@ -34,7 +35,8 @@ class QP_tree_problem_DecQP : public QP_tree_solver_base
 {
 public:
     QP_tree_problem_DecQP(const MPC_model & mpc,
-                    double u_min, double u_max);
+                          double u_min, double u_max, Mode scheduling,
+                          CallBackType run_start_callback = {}, CallBackType run_end_callback = {});
 
     VectorXd solve(const Vector2d & x0, const Vector2d & xd, const Constraints & k,
                    int n_steps,

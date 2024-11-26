@@ -3,6 +3,7 @@
 #include <eigen3/Eigen/Dense>
 #include <Eigen/Core>
 #include <unsupported/Eigen/MatrixFunctions>
+#include <vector>
 
 using namespace Eigen;
 using IntA = std::vector<int>;

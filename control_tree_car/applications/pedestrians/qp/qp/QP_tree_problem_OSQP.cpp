@@ -74,8 +74,10 @@ static c_float * create_default_c_float_array(int rows, double value)
     return q;
 }
 
-QP_tree_problem_OSQP::QP_tree_problem_OSQP(const MPC_model & mpc, double u_min, double u_max)
+QP_tree_problem_OSQP::QP_tree_problem_OSQP(const MPC_model & mpc, double u_min, double u_max, CallBackType run_start_callback, CallBackType run_end_callback)
     : QP_tree_joint_solver_base(mpc, u_min, u_max)
+    , run_start_callback{run_start_callback}
+    , run_end_callback{run_end_callback}
 {
     // Workspace structures
     settings = (OSQPSettings *)c_malloc(sizeof(OSQPSettings));
@@ -105,6 +107,8 @@ QP_tree_problem_OSQP::~QP_tree_problem_OSQP()
 
 VectorXd QP_tree_problem_OSQP::call_solver()
 {
+    if(run_start_callback) run_start_callback();
+
     // P-H
     auto P = create_csc_matrix(H.triangularView<Upper>());
 
@@ -154,6 +158,8 @@ VectorXd QP_tree_problem_OSQP::call_solver()
 //    c_free(data->q);
 //    c_free(data->l);
 //    c_free(data->u);
+
+    if(run_end_callback) run_end_callback();
 
     return U_sol;
 }
