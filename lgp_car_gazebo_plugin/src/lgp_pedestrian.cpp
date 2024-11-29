@@ -36,13 +36,13 @@ void LGPPedestrianPlugIn::publishMsgs()
     msg.header.stamp = ros::Time::now();
     msg.header.frame_id = "map";
     msg.child_frame_id = model_->GetName();
-    msg.pose.pose.position.x = model_->GetWorldPose().pos.x;
-    msg.pose.pose.position.y = model_->GetWorldPose().pos.y;
+    msg.pose.pose.position.x = model_->WorldPose().Pos().X();
+    msg.pose.pose.position.y = model_->WorldPose().Pos().Y();
 
-    msg.pose.pose.orientation.x = model_->GetWorldPose().rot.x;
-    msg.pose.pose.orientation.y = model_->GetWorldPose().rot.y;
-    msg.pose.pose.orientation.z = model_->GetWorldPose().rot.z;
-    msg.pose.pose.orientation.w = model_->GetWorldPose().rot.w;
+    msg.pose.pose.orientation.x = model_->WorldPose().Rot().X();
+    msg.pose.pose.orientation.y = model_->WorldPose().Rot().Y();
+    msg.pose.pose.orientation.z = model_->WorldPose().Rot().Z();
+    msg.pose.pose.orientation.w = model_->WorldPose().Rot().W();
 
     msg.twist.twist.linear.x = target_vx_;
     msg.twist.twist.linear.y = target_vy_;
@@ -114,7 +114,7 @@ visualization_msgs::Marker LGPPedestrianPlugIn::create_pedestrian(nav_msgs::Odom
 
 void LGPPedestrianPlugIn::applyControl()
 {
-    model_->SetLinearVel(math::Vector3(target_vx_, target_vy_, 0)); //, math::Vector3(0, 0, 0));
+    model_->SetLinearVel(ignition::math::Vector3d(target_vx_, target_vy_, 0)); //, math::Vector3(0, 0, 0));
 }
 
 void LGPPedestrianPlugIn::OnUpdate()
@@ -153,7 +153,7 @@ void LGPPedestrianPlugIn::resetPoseCB(const geometry_msgs::Pose2DConstPtr &msg)
 {
     ROS_INFO_STREAM("Reset position! " << model_->GetName() << " " << msg->x);
 
-    model_->SetWorldPose(math::Pose(msg->x, msg->y, 0, 0, 0, msg->theta));
+    model_->SetWorldPose(ignition::math::Pose3d(msg->x, msg->y, 0, 0, 0, msg->theta));
 }
 
 void LGPPedestrianPlugIn::initRos()

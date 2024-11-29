@@ -12,13 +12,13 @@ double round(double v)
     return std::round(v * 100)/ 100;
 }
 
-void filter(math::Pose &pose)
+void filter(ignition::math::Pose3d &pose)
 {
-    auto& rot = pose.rot;
-    double roll = rot.GetRoll();
-    double pitch = round(rot.GetPitch());
-    double yaw = rot.GetYaw();
-    rot.SetFromEuler(roll, pitch, yaw);
+    auto& rot = pose.Rot();
+    double roll = rot.Roll();
+    double pitch = round(rot.Pitch());
+    double yaw = rot.Yaw();
+    rot.Euler(roll, pitch, yaw);
 }
 }
 
@@ -66,20 +66,20 @@ void LGPCarPlugIn::Load(physics::ModelPtr parent, sdf::ElementPtr sdf)
 // Called by the world update start event
 void LGPCarPlugIn::PublishMsgs()
 {
-    auto pose = model_->GetWorldPose();
+    auto pose = model_->WorldPose();
     filter(pose); // remove unwanted tiny pitch
 
     nav_msgs::Odometry msg;
     msg.header.stamp = ros::Time::now();
     msg.header.frame_id = "map";
     msg.child_frame_id = model_->GetName();
-    msg.pose.pose.position.x = pose.pos.x;
-    msg.pose.pose.position.y = pose.pos.y;
+    msg.pose.pose.position.x = pose.Pos().X();
+    msg.pose.pose.position.y = pose.Pos().Y();
 
-    msg.pose.pose.orientation.x = pose.rot.x;
-    msg.pose.pose.orientation.y = pose.rot.y;
-    msg.pose.pose.orientation.z = pose.rot.z;
-    msg.pose.pose.orientation.w = pose.rot.w;
+    msg.pose.pose.orientation.x = pose.Rot().X();
+    msg.pose.pose.orientation.y = pose.Rot().Y();
+    msg.pose.pose.orientation.z = pose.Rot().Z();
+    msg.pose.pose.orientation.w = pose.Rot().W();
 
     msg.twist.twist.linear.x = target_v_;
     msg.twist.twist.angular.z = target_omega_;
@@ -236,7 +236,7 @@ void LGPCarPlugIn::ResetPoseCB(const geometry_msgs::Pose2DConstPtr &msg)
 {
     ROS_INFO_STREAM("Reset position!");
 
-    model_->SetWorldPose(math::Pose(msg->x, msg->y, 0, 0, 0, msg->theta));
+    model_->SetWorldPose(ignition::math::Pose3d(msg->x, msg->y, 0, 0, 0, msg->theta));
 }
 
 void LGPCarPlugIn::InitRos()
