@@ -117,7 +117,7 @@ void shift_komos(std::vector<std::shared_ptr<KOMO>>& komos, const OdometryState 
     }
     else
     {
-        ROS_WARN_STREAM("C. first iteration");
+        //ROS_WARN_STREAM("C. first iteration");
 
         for(auto&komo: komos)
         {
@@ -179,7 +179,7 @@ void init_komo_with_constant_velocity_trajectory(const std::shared_ptr<KOMO> & k
     {
       const auto& i = vars_all_order_1(s, 0);
 
-      std::cout << "i->j: " << i << "->" << j << std::endl;
+      //std::cout << "i->j: " << i << "->" << j << std::endl;
 
       komo->configurations(j + 2)->q(0) = komo->configurations(i + 2)->q(0) + dx;
       komo->configurations(j + 2)->q(1) = komo->configurations(i + 2)->q(1) + dy;
