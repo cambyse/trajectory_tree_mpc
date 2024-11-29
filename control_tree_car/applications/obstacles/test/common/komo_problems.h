@@ -34,7 +34,7 @@ void plan_impl(const Scenario & scenario, BehaviorManager& manager, T& behavior,
 
   behavior->obstacle_callback(scenario.obstacles);
 
-  auto plotter = [&]()
+  auto plotter = [&](const auto&...)
   {
       static int n = 0;
 
@@ -86,7 +86,7 @@ public:
   {
     ros::Time::init();
 
-    behavior = std::make_shared<ObstacleAvoidanceTreeN>(manager, std::string{"/home/camille/git/catkin_ws/src/icra_2021/control_tree_car/data/LGP-real-time.g"}, n_obstacles, 4);
+    behavior = std::make_shared<ObstacleAvoidanceTreeN>(manager, std::string{"/home/camille/git/catkin_ws/src/icra_2021/control_tree_car/data/LGP-real-time.g"}, n_obstacles, 5, 4);
 
     manager.register_behavior("collision_avoidance", behavior);
     manager.set_current_behavior("collision_avoidance");
@@ -145,6 +145,29 @@ class KomoJointNTest5Obstacles : public KomoJointNTest
     {
         n_obstacles = 5;
     }
+};
+
+class KomoSimpleForkTest : public ::testing::Test
+{
+public:
+  void SetUp()
+  {
+    ros::Time::init();
+
+    behavior = std::make_shared<ObstacleAvoidanceTreeN>(manager, std::string{"/home/camille/git/catkin_ws/src/icra_2021/control_tree_car/data/LGP-real-time.g"}, 1, 2, 4);
+
+    manager.register_behavior("collision_avoidance", behavior);
+    manager.set_current_behavior("collision_avoidance");
+  }
+
+  void plan(const Scenario & scenario, bool plot, bool plot_debug = false)
+  {
+    plan_impl(scenario, manager, behavior, plot, plot_debug);
+  }
+
+  BehaviorManager manager;
+  std::shared_ptr<ObstacleAvoidanceTreeN> behavior;
+  int n_obstacles = 1;
 };
 
 class KomoDecTest : public ::testing::Test
