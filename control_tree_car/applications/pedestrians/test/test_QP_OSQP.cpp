@@ -100,7 +100,9 @@ TEST_F(QPTest, test_20_branches)
 
 TEST_F(QPTest, test_20_branches_)
 {
-    std::ofstream file("/home/camille/Phd/Paper/ICRA-2021/plots/execution_time_osqp_20.dat");
+    //std::ofstream file("/home/camille/Phd/Paper/T-RO-2024/plots/execution_time_osqp_20.dat");
+    std::ofstream file("/tmp/execution_time_osqp_20.dat");
+
     file << "#" << " " << "n" << " " << "execution time (ms)" << std::endl;
     for(auto i = 1; i <= 20; ++i)
     {
@@ -110,17 +112,32 @@ TEST_F(QPTest, test_20_branches_)
     }
 }
 
-//TEST_F(QPTest, test_N_branches)
-//{
-//    std::ofstream file("/home/camille/Phd/Paper/ICRA-2021/plots/execution_time_osqp_100.dat");
-//    file << "#" << " " << "n" << " " << "execution time (ms)" << std::endl;
-//    for(auto i = 1; i <= 100; ++i)
-//    {
-//        auto pb = create_N_branches_4_steps_constrained(i);
-//        plan_OSQP(pb, false);
-//        file << "  " << i << " " << execution_time_ms << std::endl;
-//    }
-//}
+TEST_F(QPTest, test_N_branches)
+{
+    //std::ofstream file("/home/camille/Phd/Paper/ICRA-2021/plots/execution_time_osqp_100.dat");
+    std::ofstream file("/tmp/execution_time_osqp_100.dat");
+
+    file << "#" << " " << "n" << " " << "execution time (ms)" << std::endl;
+    for(auto i = 1; i <= 100; ++i)
+    {
+        auto pb = create_N_branches_4_steps_constrained(i);
+        plan_OSQP(pb, false);
+        file << "  " << i << " " << execution_time_ms << std::endl;
+    }
+}
+
+TEST_F(QPTest, test_osqp_beyond_100_branches)
+{
+    std::ofstream file("/tmp/execution_time_osqp_beyond_100.dat");
+
+    file << "#" << " " << "n" << " " << "execution time (ms)" << std::endl;
+    for (auto i: {100, 200, 300, 400, 500, 600, 700})
+    {
+      auto pb = create_N_branches_4_steps_constrained(i);
+      plan_OSQP(pb, false);
+      file << "  " << i << " " << execution_time_ms << std::endl;
+    }
+}
 
 TEST_F(QPTest, test_paper_sparsity)
 {

@@ -3,11 +3,12 @@
 
 //----Joint------------------------//
 
-QP_tree_problem_JointQP::QP_tree_problem_JointQP(const MPC_model & mpc, double u_min, double u_max, CallBackType run_start_callback, CallBackType run_end_callback)
+QP_tree_problem_JointQP::QP_tree_problem_JointQP(const MPC_model & mpc, double u_min, double u_max, CallBackType run_start_callback, StepCallBackType run_end_callback, StepCallBackType step_callback)
     : QP_tree_joint_solver_base(mpc, u_min, u_max)
-    , options(PARALLEL, false, NOOPT, false, {}, run_start_callback, run_end_callback)
+    , options(PARALLEL, false, NOOPT, false, step_callback, run_start_callback, run_end_callback)
 {
   options.opt.verbose = 0;
+  //options.opt.aulaMuInc = 1;
 }
 
 VectorXd QP_tree_problem_JointQP::call_solver()
@@ -33,12 +34,52 @@ VectorXd QP_tree_problem_JointQP::call_solver()
 
 //----Dec---------------------------//
 
-QP_tree_problem_DecQP::QP_tree_problem_DecQP(const MPC_model & mpc, double u_min, double u_max, Mode scheduling, CallBackType run_start_callback, CallBackType run_end_callback)
+QP_tree_problem_DecQP::QP_tree_problem_DecQP(const MPC_model & mpc, double u_min, double u_max, Mode scheduling, CallBackType run_start_callback, StepCallBackType run_end_callback, StepCallBackType step_callback)
   : QP_tree_solver_base(mpc, u_min, u_max)
-  , options(scheduling, true, NOOPT, false, {}, run_start_callback, run_end_callback)
+  , options(scheduling, true, NOOPT, false, step_callback, run_start_callback, run_end_callback)
 {
-  options.opt.verbose = 1;
-  options.opt.aulaMuInc = 1;
+  options.opt.verbose = 0;
+  // options.opt.aulaMuInc = 1.0; -> no effect!
+
+  // print options!
+//  Mode scheduling;
+
+//  bool compressed; // wether xs.d0 == x.d0, if true subproblem optimizers act on smaller (local) x
+//  OptOptions opt;  // for newton and aula
+
+//  bool checkGradients;
+//  CallBackType callback; // called after each step() (for debugging)
+//  CallBackType run_start_callback; // called when starting the run method (for timing)
+//  CallBackType run_end_callback;   // called when ending the run method (for timing)
+//  ostream *logFile;
+
+//  double muInit{1.0}; // initial mu after first step
+//  double muInc{1.0};  // mu increase
+
+//  const double muInc = 1.2;
+
+//  options.muInc = 1.2;
+//  options.muInit = 10.0; // initial mu after first step
+//  options.opt.aulaMuInc = 2.0;
+//  options.opt.stopTolerance = 0.05;
+
+  // those values were obtained via grid search, look for test_benchmark_5_branches
+  options.opt.muInit = 1.0; // initial mu after first step
+  options.opt.aulaMuInc = 1.5;
+  options.muInit = 1.0;     // initial mu after first step
+  options.muInc = 1.5;
+
+//  options.opt.stopTolerance = 0.05;
+
+  std::cout << "u_max:" << u_max << std::endl;
+  std::cout << "u_min:" << u_min << std::endl;
+  std::cout << "scheduling:" << options.scheduling << std::endl;
+  std::cout << "compressed:" << options.compressed << std::endl;
+  std::cout << "opt:" << options.opt << std::endl;
+  std::cout << "stopTolerance:" << options.opt.stopTolerance << std::endl;
+  std::cout << "checkGradients:" << options.checkGradients << std::endl;
+  std::cout << "muInit:" << options.muInit << std::endl;
+  std::cout << "muInc:" << options.muInc << std::endl;
 }
 
 VectorXd QP_tree_problem_DecQP::solve(const Vector2d & x0, const Vector2d & xd, const Constraints& joint_k,

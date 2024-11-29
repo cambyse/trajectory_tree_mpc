@@ -400,7 +400,190 @@ QP_problem replicate_simulation_1()
     //[ INFO] [1598170096.753586247]: 1--th stopline, x: 1085.35
     //[ INFO] [1598170096.753603506]: 2--th stopline, x: 1106.66
     //[ INFO] [1598170096.753619602]: 3--th stopline, x: inf
+}
 
+QP_problem create_5_branches_one_close_obstacle()
+{
+  const auto n_steps_per_phase = 4;
+  const auto vdesired = 50/3.6;
+
+  MPC_model model(1.0 / n_steps_per_phase, 1.0, 5.0);
+
+  const auto tree = TreePb::refined(TreeNBranches({0.163079, 0, 0, 0, 0.836921}), n_steps_per_phase);
+
+  const double ox = 207.404;
+  const double vx = 9.50505;
+  Vector2d x0;
+  x0 << 0, vx;
+
+  Vector2d xd;
+  xd << 0, vdesired;
+
+  Constraints k(tree.n_steps, tree.varss);
+  k.add_constraint(0, Vector2d(221.759 - ox, 0), Vector2d(1, 0));
+  k.add_constraint(1, Vector2d(1000.0, 0), Vector2d(1, 0));
+  k.add_constraint(2, Vector2d(1000.0, 0), Vector2d(1, 0));
+  k.add_constraint(3, Vector2d(1000.0, 0), Vector2d(1, 0));
+
+//  240
+//  125
+//  125
+//  125
+//  131
+//  [ INFO] [1732796174.725123479]: [tree qp] execution time (ms): 106.026001
+//  --------------------------------------------
+//  o.x:207.404 o.v: 9.50505
+//  x:221.759 s.p:0.163079
+//  x:inf s.p:0
+//  x:inf s.p:0
+//  x:inf s.p:0
+//  Belief state: 0.163079 0 0 0 0.836921
+//  x0_:      0
+//  9.50505
+//  xd:      0
+//  13.8889
+//  tree_->n_steps:84
+
+  // somewhat improved by setting:
+//  const double muInc = 1.2;
+
+//  options.muInc = muInc;
+//  options.opt.aulaMuInc = muInc;
+
+  return {model, tree, k, x0, xd};
+}
+
+QP_problem create_5_branches_two_obstacles()
+{
+  const auto n_steps_per_phase = 4;
+  const auto vdesired = 50/3.6;
+
+  MPC_model model(1.0 / n_steps_per_phase, 1.0, 5.0);
+
+  const auto tree = TreePb::refined(TreeNBranches({0.198468, 0.58795, 0, 0, 0.213582}), n_steps_per_phase);
+
+  const double ox = 131.84;
+  const double vx = 4.3572;
+  Vector2d x0;
+  x0 << 0, vx;
+
+  Vector2d xd;
+  xd << 0, vdesired;
+
+  Constraints k(tree.n_steps, tree.varss);
+  k.add_constraint(0, Vector2d(131.308 - ox, 0), Vector2d(1, 0));
+  k.add_constraint(1, Vector2d(147.169 - ox, 0), Vector2d(1, 0));
+  k.add_constraint(2, Vector2d(1000.0, 0), Vector2d(1, 0));
+  k.add_constraint(3, Vector2d(1000.0, 0), Vector2d(1, 0));
+
+//  220
+//  191
+//  165
+//  165
+//  226
+//  [ INFO] [1732801274.341294815]: [tree qp] execution time (ms): 139.240997
+//  [ WARN] [1732801274.341516618]: control out of bounds!:-8.18491
+//  [ WARN] [1732801274.341559204]: Optimization succeeded but invalid trajectory
+//  [ INFO] [1732801274.341585768]: Generate control for emergency brake, o.x:131.84 o.v:4.3572 v_desired_:13.8889
+//  --------------------------------------------
+//  o.x:131.84 o.v: 4.3572
+//  x:131.308 s.p:0.198468
+//  x:147.169 s.p:0.733532
+//  x:inf s.p:0
+//  x:inf s.p:0
+//  Belief state: 0.198468 0.58795 0 0 0.213582
+
+  return {model, tree, k, x0, xd};
+}
+
+QP_problem create_5_branches_two_unlikely_obstacles()
+{
+  const auto n_steps_per_phase = 4;
+  const auto vdesired = 50/3.6;
+
+  MPC_model model(1.0 / n_steps_per_phase, 1.0, 5.0);
+
+  const auto tree = TreePb::refined(TreeNBranches({0.0100503, 0.0422197, 0, 0, 0.94773}), n_steps_per_phase);
+
+  const double ox = 489.645;
+  const double vx = 6.948;
+  Vector2d x0;
+  x0 << 0, vx;
+
+  Vector2d xd;
+  xd << 0, vdesired;
+
+  Constraints k(tree.n_steps, tree.varss);
+  k.add_constraint(0, Vector2d(506.997 - ox, 0), Vector2d(1, 0));
+  k.add_constraint(1, Vector2d(530.876 - ox, 0), Vector2d(1, 0));
+  k.add_constraint(2, Vector2d(1000.0, 0), Vector2d(1, 0));
+  k.add_constraint(3, Vector2d(1000.0, 0), Vector2d(1, 0));
+
+//  875
+//  1003
+//  101
+//  101
+//  182
+//  [ INFO] [1732801949.177916829]: [tree qp] execution time (ms): 121.832001
+//  --------------------------------------------
+//  o.x:489.645 o.v: 6.948
+//  x:506.997 s.p:0.0100503
+//  x:530.876 s.p:0.0426483
+//  x:inf s.p:0
+//  x:inf s.p:0
+//  Belief state: 0.0100503 0.0422197 0 0 0.94773
+//  x0_:    0
+//  6.948
+//  xd:      0
+//  13.8889
+//  tree_->n_steps:84
+
+  return {model, tree, k, x0, xd};
+}
+
+QP_problem create_5_branches_four_obstacles_first_is_certain()
+{
+  const auto n_steps_per_phase = 4;
+  const auto vdesired = 50/3.6;
+
+  MPC_model model(1.0 / n_steps_per_phase, 1.0, 5.0);
+
+  const auto tree = TreePb::refined(TreeNBranches({1, 0, 0, 0, 0}), n_steps_per_phase);
+
+  const double ox = 1593.29;
+  const double vx = 9.30681;
+  Vector2d x0;
+  x0 << 0, vx;
+
+  Vector2d xd;
+  xd << 0, vdesired;
+
+  Constraints k(tree.n_steps, tree.varss);
+  k.add_constraint(0, Vector2d(1601.91 - ox, 0), Vector2d(1, 0));
+  k.add_constraint(1, Vector2d(1000.0, 0), Vector2d(1, 0));
+  k.add_constraint(2, Vector2d(1000.0, 0), Vector2d(1, 0));
+  k.add_constraint(3, Vector2d(1000.0, 0), Vector2d(1, 0));
+
+//  101
+//  207
+//  228
+//  381
+//  81
+//  [ INFO] [1732804188.125298523]: [tree qp] execution time (ms): 107.254997
+//  --------------------------------------------
+//  o.x:1593.29 o.v: 9.30681
+//  x:1601.91 s.p:1
+//  x:1618.16 s.p:0.0648626
+//  x:1619.95 s.p:0.424467
+//  x:1620.73 s.p:0.708563
+//  Belief state: 1 0 0 0 0
+//  x0_:      0
+//  9.30681
+//  xd:      0
+//  13.8889
+//  tree_->n_steps:84
+
+  return {model, tree, k, x0, xd};
 }
 
 VectorXd QPTest::plan_OSQP(const QP_problem &pb, bool _plot, const std::string & filename)
@@ -437,9 +620,10 @@ VectorXd QPTest::plan_JointQP(const QP_problem &pb, bool _plot, const std::strin
     std::chrono::time_point<std::chrono::high_resolution_clock> end{};
 
     const auto run_start = [&start](){ start = std::chrono::high_resolution_clock::now(); };
-    const auto run_end = [&end](){ end = std::chrono::high_resolution_clock::now(); };
+    const auto run_end = [&end](const auto&...){ end = std::chrono::high_resolution_clock::now(); };
+    const auto step_cb =[&](const auto&...){};
 
-    QP_tree_problem_JointQP solver(pb.model, u_min, u_max, run_start, run_end);
+    QP_tree_problem_JointQP solver(pb.model, u_min, u_max, run_start, run_end, step_cb);
 
     const auto & U = solver.solve(pb.x0, pb.xd, pb.k, pb.tree.n_steps, pb.tree.varss, pb.tree.scaless);
 
@@ -456,15 +640,42 @@ VectorXd QPTest::plan_JointQP(const QP_problem &pb, bool _plot, const std::strin
     return U;
 }
 
-VectorXd QPTest::plan_DecQP(const QP_problem &pb, bool _plot, const std::string & filename, Mode scheduling)
+VectorXd QPTest::plan_DecQP(const QP_problem &pb, bool _plot, const std::string & filename, Mode scheduling, boost::optional<BenchmarkParams> params)
 {
     std::chrono::time_point<std::chrono::high_resolution_clock> start{};
     std::chrono::time_point<std::chrono::high_resolution_clock> end{};
 
     const auto run_start = [&start](){ start = std::chrono::high_resolution_clock::now(); };
-    const auto run_end = [&end](){ end = std::chrono::high_resolution_clock::now(); };
+    const auto run_end = [&end, this](const arr& z, std::vector<arr>& xs, const std::vector<std::unique_ptr<OptNewton>>& newtons){
+      end = std::chrono::high_resolution_clock::now();
+      for(const auto& newton: newtons)
+      {
+        evals = std::max(evals, newton->evals);
+      }
+    };
+    const auto step_cb =[&](const arr& z, std::vector<arr>& xs, const std::vector<std::unique_ptr<OptNewton>>& newtons){
+//      std::cout << "-----" << std::endl;
+//      std::cout << "z:" << std::endl;
+//      std::cout << z << std::endl;
 
-    QP_tree_problem_DecQP solver(pb.model, u_min, u_max, scheduling, run_start, run_end);
+//      std::cout << "xs:" << std::endl;
+//      for(const auto& x: xs)
+//      {
+//        std::cout << x << std::endl;
+//      }
+    };
+
+    QP_tree_problem_DecQP solver(pb.model, u_min, u_max, scheduling, run_start, run_end, step_cb);
+
+    if(params)
+    {
+      auto & options = solver.get_options();
+      options.opt.muInit = params->aulaMuInit;
+      options.opt.aulaMuInc = params->aulaMuInc;
+      options.muInit = params->admmMuInit;
+      options.muInc = params->admmMuInc;
+      options.opt.stopTolerance = params->stopTol;
+    }
 
     const auto U = solver.solve(pb.x0, pb.xd, pb.k, pb.tree.n_steps, pb.tree.varss, pb.tree.scaless);
 
