@@ -30,3 +30,10 @@ qp
 common
 ros_common_lib
 )
+
+add_executable(pedestrian_popping_control_node nodes/pedestrian_popping_control_node.cpp)
+target_link_libraries(pedestrian_popping_control_node
+qp
+common
+ros_common_lib
+)
