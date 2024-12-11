@@ -1,9 +1,9 @@
-This repo contains the code for 2 examples of the ICRA 2021 submission.
+This repo contains the code for MPC examples using trajectory-tree optimization.
 
 [Accompanying video](https://youtu.be/Ju5hv2gIlxw)
 
 A standalone version of the solver can be found by following the link [Solver only](https://github.com/ControlTrees/solver).
-This version needs way less dependencies (e.g. no ros) and doesn't contain the examples of the paper.
+This version needs less dependencies (e.g. no ros) and doesn't contain the examples of the paper.
 
 
 # Dependencies
