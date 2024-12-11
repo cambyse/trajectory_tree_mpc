@@ -6,6 +6,8 @@ project(control_tree_car)
 
 catkin_package()
 
+add_definitions(-O3 -Wall -DRAI_LAPACK -DRAI_EIGEN -DRAI_PTHREAD -Wno-terminate -fPIC -std=c++14)
+
 # MLR
 set(MLR_LIBRARIES_DIR "externals/rai/lib")
 set(MLR_INCLUDE_DIR "externals/rai/rai")
