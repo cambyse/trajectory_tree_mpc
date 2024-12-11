@@ -17,6 +17,7 @@ int main(int argc, char **argv)
     int n_pedestrians = 1;
     double p_crossing = 0;
     double road_width = 3.5;
+    bool full_observability = false;
 
     // ros init
     ros::init(argc, argv, "lgp_car_pedestrian_qp_tree_planner");
@@ -26,7 +27,7 @@ int main(int argc, char **argv)
     n.getParam("n_pedestrians", n_pedestrians);
     n.getParam("p_crossing", p_crossing);
     n.getParam("road_width", road_width);
-
+    n.getParam("full_observability", full_observability);
 
     tf::TransformListener tf_listener;
     n.getParam("/traj_planner/steps_per_phase", steps_per_phase);
@@ -63,7 +64,7 @@ int main(int argc, char **argv)
 
     ros::Rate loop_rate(10);
 
-    std::ofstream ofs(filename("tree", p_crossing, n_pedestrians, n_branches));
+    std::ofstream ofs(filename("tree", p_crossing, n_pedestrians, n_branches, full_observability));
 
     double car_x = 0;
     int i = 0;
