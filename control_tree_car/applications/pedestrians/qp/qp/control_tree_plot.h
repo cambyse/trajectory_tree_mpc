@@ -1,8 +1,8 @@
 #pragma once
 
 #include <common/control_tree.h>
-
-#include "gnuplot-iostream.h"
+#include <functional>
+#include <common/gnuplot-iostream.h>
 
 struct PlotAxis
 {
@@ -45,4 +45,5 @@ private:
     int n_branches_;
     std::string name_;
     std::string yrange_;
-};
+    bool window_title_set_{false};
+    };

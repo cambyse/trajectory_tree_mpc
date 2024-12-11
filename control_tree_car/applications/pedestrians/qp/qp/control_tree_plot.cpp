@@ -1,4 +1,5 @@
 #include <qp/control_tree_plot.h>
+#include <iostream>
 
 void plot(const std::function<double(int i)> & value_provider,
           const std::vector<IntA> & varss,
@@ -47,7 +48,7 @@ void TreePlot::update(const std::vector<IntA> & varss,
     {
         std::stringstream ss;
         ss << "#";
-        ss << std::hex << int((1.0 - p) * 255);
+        ss << std::hex << int((1.0 - sqrt(p)) * 255);
         ss << "00";
         ss << "00";
         ss << "FF";
@@ -57,8 +58,15 @@ void TreePlot::update(const std::vector<IntA> & varss,
 
     auto & gp = gp_;
 
+    if(!window_title_set_)
+    {
+      //gp << "set term wxt title 'Trajectory-tree display'\n";
+      gp << "set term wxt title 'Trajectory-tree display' size 400,350 position 432," << (name_ == "acceleration" ? "125" : "551") << "\n";
+      window_title_set_ = true;
+    }
     gp << "set title '" << name_ << "'\n";
-    gp << "set xrange [0:16]\nset yrange " << yrange_ << "\n";
+    gp << "set xrange [0:19]\nset yrange " << yrange_ << "\n";
+    gp << "set xtics ('1.0' 3, '2.0' 7, '3.0' 11, '4.0' 15, '5.0' 19)\n";
     gp << "plot ";
 
     for(uint i = 0; i < varss.size(); ++i)
