@@ -34,18 +34,19 @@ std::string filename(ros::NodeHandle & n)
     int n_obstacles = 1;
     double certainty_distance_offset = 10.0;
     bool tree = true;
+    bool full_observability = false;
 
     n.getParam("tree", tree);
     n.getParam("p_obstacle", p_obstacle);
     n.getParam("n_obstacles", n_obstacles);
     n.getParam("certainty_distance_offset", certainty_distance_offset);
     n.getParam("tree", tree);
-    n.getParam("tree", tree);
+    n.getParam("full_observability", full_observability);
 
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
     std::stringstream ss;
-    ss << "/home/camille/Phd/Paper/ICRA-2021/plots/gen_obstacles/data-" << std::to_string(p_obstacle) << "-" << (tree ? "tree" : "linear") << "-" << n_obstacles << "-" << "-offset-" << certainty_distance_offset << "-" << t << ".txt";
+    ss << "/home/camille/Phd/Paper/T-RO-2024/plots/gen_obstacles/data-" << std::to_string(p_obstacle) << "-" << (tree ? "tree" : "linear") << "-" << n_obstacles << "-" << "-offset-" << certainty_distance_offset << (full_observability ? "-full-obs" : "") << "-" << t << ".txt";
     return ss.str();
 }
 
