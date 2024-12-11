@@ -71,15 +71,15 @@ QP_tree_problem_DecQP::QP_tree_problem_DecQP(const MPC_model & mpc, double u_min
 
 //  options.opt.stopTolerance = 0.05;
 
-  std::cout << "u_max:" << u_max << std::endl;
-  std::cout << "u_min:" << u_min << std::endl;
-  std::cout << "scheduling:" << options.scheduling << std::endl;
-  std::cout << "compressed:" << options.compressed << std::endl;
-  std::cout << "opt:" << options.opt << std::endl;
-  std::cout << "stopTolerance:" << options.opt.stopTolerance << std::endl;
-  std::cout << "checkGradients:" << options.checkGradients << std::endl;
-  std::cout << "muInit:" << options.muInit << std::endl;
-  std::cout << "muInc:" << options.muInc << std::endl;
+//  std::cout << "u_max:" << u_max << std::endl;
+//  std::cout << "u_min:" << u_min << std::endl;
+//  std::cout << "scheduling:" << options.scheduling << std::endl;
+//  std::cout << "compressed:" << options.compressed << std::endl;
+//  std::cout << "opt:" << options.opt << std::endl;
+//  std::cout << "stopTolerance:" << options.opt.stopTolerance << std::endl;
+//  std::cout << "checkGradients:" << options.checkGradients << std::endl;
+//  std::cout << "muInit:" << options.muInit << std::endl;
+//  std::cout << "muInc:" << options.muInc << std::endl;
 }
 
 VectorXd QP_tree_problem_DecQP::solve(const Vector2d & x0, const Vector2d & xd, const Constraints& joint_k,
