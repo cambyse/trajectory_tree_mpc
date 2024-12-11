@@ -30,7 +30,8 @@ QP_problem create_2_stages_branching(double p=0.6);
 QP_problem create_paper_1_branch_4_steps_constrained(double p=0.6);
 QP_problem create_paper_4_branches_4_steps_constrained(double p=0.6);
 QP_problem replicate_simulation_1();
-// runtime optimization
+
+// runtime optimization - benchmark to find good params
 QP_problem create_5_branches_one_close_obstacle();
 QP_problem create_5_branches_two_obstacles();
 QP_problem create_5_branches_two_unlikely_obstacles();
