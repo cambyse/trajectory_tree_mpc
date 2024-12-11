@@ -1,6 +1,6 @@
 [submodule "control_tree_car/externals/rai"]
 	path = control_tree_car/externals/rai
-	url = git@github.com:ControlTrees/rai.git
+	url = git@github.com:cambyse/rai_for_mpc.git
 [submodule "control_tree_car/externals/tamp"]
 	path = control_tree_car/externals/tamp
-	url = git@github.com:ControlTrees/tamp.git
+	url = git@github.com:cambyse/tamp_for_mpc.git
