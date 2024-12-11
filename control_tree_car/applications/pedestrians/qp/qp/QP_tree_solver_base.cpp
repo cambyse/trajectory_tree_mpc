@@ -1,4 +1,6 @@
 #include <qp/QP_tree_solver_base.h>
+#include <iostream>
+#include <chrono>
 
 QP_tree_solver_base::QP_tree_solver_base(const MPC_model & mpc, double u_min, double u_max)
     : mpc(mpc)
@@ -18,8 +20,10 @@ QP_tree_joint_solver_base::QP_tree_joint_solver_base(const MPC_model & mpc, doub
 VectorXd QP_tree_joint_solver_base::solve(const Vector2d & x0, const Vector2d & xd, const Constraints & k,
                                 int n_steps,
                                 const std::vector<IntA> & varss,
-                                const std::vector<Arr> & scaless)
+                                const std::vector<Arr> & scaless) // WARNING: THis step takes a lot of time! aka 60ms for a pb with 20 branches!
 {
+    //const auto start = std::chrono::high_resolution_clock::now();
+
     // build matrices
     S = mpc.get_S(n_steps, varss);
     T = mpc.get_T(n_steps, varss);
@@ -66,6 +70,11 @@ VectorXd QP_tree_joint_solver_base::solve(const Vector2d & x0, const Vector2d & 
         Up.tail(H.rows()) = VectorXd::Constant(H.rows(), u_max_);
         Lo.tail(H.rows()) = VectorXd::Constant(H.rows(), u_min_);
     }
+
+    //const auto end = std::chrono::high_resolution_clock::now();
+    //const auto execution_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
+
+    //std::cout << "prep: " << execution_time_ms << std::endl;
 
     // call solver
     return call_solver();
