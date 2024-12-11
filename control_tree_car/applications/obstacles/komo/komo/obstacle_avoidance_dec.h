@@ -31,7 +31,16 @@
 class ObstacleAvoidanceDec : public BehaviorBase
 {
 public:
-    ObstacleAvoidanceDec(BehaviorManager&, const std::string& kin_path, int n_obstacles, bool tree, double road_width, double v_desired, int steps_per_phase);
+    ObstacleAvoidanceDec(BehaviorManager&,
+                         const std::string& kin_path,
+                         int n_obstacles,
+                         bool tree,
+                         double road_width,
+                         double v_desired,
+                         int steps_per_phase,
+                         StepCallBackType callback = {},
+                         CallBackType run_start = {},
+                         StepCallBackType run_end = {});
 
     void desired_speed_callback(const std_msgs::Float32::ConstPtr& msg);
 
@@ -41,10 +50,11 @@ public:
 
     std::vector<nav_msgs::Path> get_trajectories();
 
-    void set_optim_callback(const std::function<void()>& callback) { options_.callback = callback; }
+    void set_optim_callback(const StepCallBackType& callback) { options_.callback = callback; }
 
     static uint n_branches(uint n_obstacles, bool tree) { return tree ? pow(2.0, n_obstacles) : 1; }
 
+    DecOptConfig& get_options() { return options_; }
 private:
     void init_tree();
     void update_groundings();
@@ -68,6 +78,10 @@ private:
 
     // objectives
     std::vector<Objectives> objectivess_;
+
+    // timing
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_;
+    std::chrono::time_point<std::chrono::high_resolution_clock> end_;
 
     // state;
     mp::TreeBuilder komo_tree_;

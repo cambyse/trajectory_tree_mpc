@@ -31,7 +31,10 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager,
                                            bool tree,
                                            double road_width,
                                            double v_desired,
-                                           int steps_per_phase)
+                                           int steps_per_phase,
+                                           StepCallBackType callback,
+                                           CallBackType run_start,
+                                           StepCallBackType run_end)
     : BehaviorBase(behavior_manager)
     , n_obstacles_(n_obstacles)
     , n_branches_(n_branches(n_obstacles, tree))
@@ -43,12 +46,14 @@ ObstacleAvoidanceDec::ObstacleAvoidanceDec(BehaviorManager& behavior_manager,
     , obstacles_(n_obstacles_, {arr{-10, 0, 0}, 0.0})
     , komo_factory_(kin_path)
     , komo_tree_(1.0, 0)
-    , options_(THREAD_POOL, true, NOOPT, false)
+    , options_(PARALLEL, true, NOOPT, false, callback, run_start, run_end)
 {
     options_.opt.verbose = 0;
-    options_.opt.aulaMuInc = 1;
-    options_.muInit = 2.0;
-    options_.muInc = 2.0;
+
+    options_.opt.muInit = 1.0;
+    options_.opt.aulaMuInc = 1.0;
+    options_.muInit = 1.0;
+    options_.muInc = 1.0;
 
     // optim structure
     init_tree();
@@ -150,14 +155,15 @@ TimeCostPair ObstacleAvoidanceDec::plan()
     //options_.checkGradients = true;
 
     // run
-    auto start = std::chrono::high_resolution_clock::now();
-
     DecOptConstrained<ConstrainedProblem, BeliefState> opt(x_, constrained_problems_, xmasks_, BeliefState(bs), options_);
     //DecOptConstrained<ConstrainedProblem, AverageUpdater> opt(x_, constrained_problems_, xmasks_, AverageUpdater(), options_);
 
+    const auto start = std::chrono::high_resolution_clock::now();
+
     opt.run();
 
-    auto end = std::chrono::high_resolution_clock::now();
+    const auto end = std::chrono::high_resolution_clock::now();
+
     float execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
     ROS_INFO( "[tree dec] execution time (ms): %f", execution_time_us / 1000 );
