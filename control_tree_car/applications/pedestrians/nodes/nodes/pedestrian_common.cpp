@@ -24,11 +24,11 @@ void log_to_file(std::ofstream & ofs, ros::NodeHandle & n, double car_x, int i, 
     ofs << ss.str() << std::endl;
 }
 
-std::string filename(const std::string & name, double p_crossing, int n_pedestrians, int n_branches)
+std::string filename(const std::string & name, double p_crossing, int n_pedestrians, int n_branches, bool full_observability)
 {
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
     std::stringstream ss;
-    ss << "/home/camille/Phd/Paper/ICRA-2021/plots/gen/data-" << std::to_string(p_crossing) << "-" << name << "-" << std::to_string(n_pedestrians) << "-" << std::to_string(n_branches) << "-" << t << ".txt";
+    ss << "/home/camille/Phd/Paper/T-RO-2024/plots/gen/data-" << std::to_string(p_crossing) << "-" << name << "-" << std::to_string(n_pedestrians) << "-" << std::to_string(n_branches) << "-" << (full_observability ? "full-obs-" : "" ) << t << ".txt";
     return ss.str();
 }
