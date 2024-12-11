@@ -76,6 +76,10 @@ private:
     VectorXd U_sol_;
     VectorXd X_sol_;
 
+    // timing
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_;
+    std::chrono::time_point<std::chrono::high_resolution_clock> end_;
+
     // state;
     bool optimization_run_;
     bool optimization_error_;

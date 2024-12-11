@@ -8,7 +8,9 @@ StopLineQPTree::StopLineQPTree(BehaviorManager& behavior_manager, int n_branches
     , n_branches_(n_branches)
     , steps_(steps_per_phase)
     , model_(1.0 / steps_per_phase, 1.0, 5.0)
-    , solver_(model_, u_min_, u_max_)
+    , solver_(model_, u_min_, u_max_, PARALLEL,
+               [this](){ this->start_ = std::chrono::high_resolution_clock::now(); },
+               [this](const auto&...){ this->end_ = std::chrono::high_resolution_clock::now();})
     , v_desired_(50/3.6)
     , stoplines_(n_branches_ > 1 ? n_branches_ - 1 : 1)
     , optimization_run_(false)
@@ -105,12 +107,12 @@ TimeCostPair StopLineQPTree::plan()
     /// SOLVER
     //ROS_INFO( "solve.." );
 
-    auto start = std::chrono::high_resolution_clock::now();
+    //auto start = std::chrono::high_resolution_clock::now();
 
     auto U = solver_.solve(x0_, xd, k, tree_->n_steps, tree_->varss, tree_->scaless);
 
-    auto end = std::chrono::high_resolution_clock::now();
-    float execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    //auto end = std::chrono::high_resolution_clock::now();
+    float execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end_ - start_).count();
     ROS_INFO( "[tree qp] execution time (ms): %f", execution_time_us / 1000 );
 
     debug(U, o);
@@ -133,11 +135,46 @@ TimeCostPair StopLineQPTree::plan()
     }
 
     // plots
-//    if(U_sol_.rows())
-//    {
-//        acc_plotter_.update(tree_->varss, tree_->scaless, [this](int i){return U_sol_(i);});
-//        vel_plotter_.update(tree_->varss, tree_->scaless, [this](int i){return X_sol_(2*i+1);});
-//    }
+    /*if(execution_time_us / 1000 > 100 )
+    {
+      std::cout << "--------------------------------------------" << std::endl;
+
+      std::cout << "o.x:" << o.x << " o.v: " << o.v << std::endl;
+
+      // stoplines
+      for(const auto&s: stoplines_)
+      {
+        std::cout << "x:" << s.x << " s.p:" << s.p << std::endl;
+      }
+
+      // belief state
+      auto bs = get_belief_state(tree_->scaless);
+      std::cout << "Belief state:" << bs << std::endl;
+
+      //
+
+      std::cout << "x0_:" << x0_ << std::endl;
+      std::cout << "xd:" << xd << std::endl;
+      std::cout << "tree_->n_steps:" << tree_->n_steps << std::endl;
+      //std::cout << "k:" << k << std::endl;
+//      std::cout << "tree_->varss:" << tree_->varss << std::endl;
+//      std::cout << "tree_->scaless:" << tree_->scaless << std::endl;
+
+      std::cout << "--------------------------------------------" << std::endl;
+
+//      if(U_sol_.rows())
+//      {
+//          acc_plotter_.update(tree_->varss, tree_->scaless, [this](int i){return U_sol_(i);});
+//          vel_plotter_.update(tree_->varss, tree_->scaless, [this](int i){return X_sol_(2*i+1);});
+//      }
+//    std::abort();
+    }*/
+
+    if(U_sol_.rows())
+    {
+        acc_plotter_.update(tree_->varss, tree_->scaless, [this](int i){return U_sol_(i);});
+        vel_plotter_.update(tree_->varss, tree_->scaless, [this](int i){return X_sol_(2*i+1);});
+    }
 
     std::cerr << "speed:" << o.v << " costs:" << model_.cost(x0_, U_sol_[0], xd) << std::endl;
 
