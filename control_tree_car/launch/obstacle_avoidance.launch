@@ -2,12 +2,14 @@
     <arg name="p_obstacle" default="0.25" />
     <arg name="certainty_distance_offset" default="10.0" />
     <arg name="tree" default="true" />
-
+    <arg name="full_observability" default="false" />
+    
     <param name="/traj_planner/steps_per_phase" type="int" value="4" />
     <param name="/p_obstacle" type="double" value="$(arg p_obstacle)" />
     <param name="/n_obstacles" type="int" value="2" />
     <param name="/certainty_distance_offset" type="double" value="$(arg certainty_distance_offset)" />
     <param name="/tree" type="bool" value="$(arg tree)" />
+    <param name="/full_observability" type="bool" value="$(arg full_observability)" />
     <param name="/road_width" type="double" value="3.5" />
     <param name="/traj_controller/trajectory_index" type="int" value="1" />
     <param name="/traj_controller/low_pass_filter" type="boolean" value="true" />
