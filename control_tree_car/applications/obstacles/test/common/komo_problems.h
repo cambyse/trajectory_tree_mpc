@@ -5,6 +5,7 @@
 #include <komo/obstacle_avoidance_tree_n.h>
 #include <komo/obstacle_avoidance_dec.h>
 #include <komo/trajectory_plot.h>
+#include <boost/optional.hpp>
 
 #include <gtest/gtest.h>
 
@@ -17,6 +18,16 @@ struct Scenario
   nav_msgs::Odometry::Ptr odo;
   std_msgs::Float32::Ptr desired_velocity;
   visualization_msgs::MarkerArray::Ptr obstacles;
+};
+
+struct BenchmarkParams
+{
+  double aulaMuInit{1.0};
+  double aulaMuInc{2.0};
+  double admmMuInit{1.0};
+  double admmMuInc{1.0};
+
+  double stopTol{0.01};
 };
 
 Scenario create_scenario_1(double p);
@@ -177,14 +188,40 @@ public:
   {
     ros::Time::init();
 
-    behavior = std::make_shared<ObstacleAvoidanceDec>(manager, std::string{"/home/camille/git/catkin_ws/src/icra_2021/control_tree_car/data/LGP-real-time.g"}, n_obstacles, tree, 3.5, 10, 4);
+    behavior = std::make_shared<ObstacleAvoidanceDec>(manager,
+                                                      std::string{"/home/camille/git/catkin_ws/src/icra_2021/control_tree_car/data/LGP-real-time.g"},
+                                                      n_obstacles,
+                                                      tree,
+                                                      3.5,
+                                                      10,
+                                                      4,
+                                                      StepCallBackType{},
+                                                      CallBackType{},
+                                                      [this](const arr& z, std::vector<arr>& xs, const std::vector<std::unique_ptr<OptNewton>>& newtons)
+                                                      {
+                                                        for(const auto& newton: newtons)
+                                                        {
+                                                          evals = std::max(evals, newton->evals);
+                                                        }
+                                                      }
+    );
 
     manager.register_behavior("collision_avoidance", behavior);
     manager.set_current_behavior("collision_avoidance");
   }
 
-  void plan(const Scenario & scenario, bool plot, bool plot_debug = false)
+  void plan(const Scenario & scenario, bool plot, bool plot_debug = false, boost::optional<BenchmarkParams> params = {})
   {
+    if(params)
+    {
+      auto& options = behavior->get_options();
+      options.opt.muInit = params->aulaMuInit;
+      options.opt.aulaMuInc = params->aulaMuInc;
+      options.muInit = params->admmMuInit;
+      options.muInc = params->admmMuInc;
+      options.opt.stopTolerance = params->stopTol;
+    }
+
     plan_impl(scenario, manager, behavior, plot, plot_debug);
   }
 
@@ -192,6 +229,8 @@ public:
   std::shared_ptr<ObstacleAvoidanceDec> behavior;
   int n_obstacles = 2;
   bool tree = true;
+
+  uint evals = 0;
 };
 
 class KomoDecTest1Obstacle : public KomoDecTest
