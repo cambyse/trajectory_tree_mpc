@@ -16,6 +16,7 @@
 
 #include <common/utility.h>
 #include <ros/common.h>
+#include <common/common.h>
 
 #include <cassert>
 
@@ -287,9 +288,10 @@ private:
 class PedestrianObserver
 {
 public:
-    PedestrianObserver(std::size_t N, tf::TransformListener & tf_listener)
+    PedestrianObserver(std::size_t N, tf::TransformListener & tf_listener, bool full_observability)
         : pedestrians_(N)
         , tf_listener_(tf_listener)
+        , full_observability_(full_observability)
     {
 
     }
@@ -312,6 +314,20 @@ public:
                 const auto start_position = pedestrian->get_start_position();
 
                 double crossing_probability = pedestrian->crossing_probability(ros::Time::now().toSec(), car_position.x);
+
+                if(full_observability_) // here we use dynamic case to simulate full obs!
+                {
+                  if(dynamic_cast<CrossingPedestrian*>(pedestrian.get()))
+                  {
+                    crossing_probability = 1.0;
+                  }
+                  else
+                  {
+                    crossing_probability = 0.0;
+
+                  }
+                }
+
                 {
                     std::string name = "pedestrian_mesh_" + std::to_string(i);
 
@@ -327,6 +343,9 @@ public:
                     marker.pose.position.y = position.y;
                     marker.pose.position.z = 0.;
 
+
+                    const double alpha_mesh = 1.0;
+                    const double rgb = 0.5;
                     if(crossing_probability >= 1.0)
                     {
                         marker.mesh_resource = "package://control_tree_car/data/meshes/person_walking/meshes/walking.dae";
@@ -336,14 +355,19 @@ public:
 //                        marker.color.b = 0.0;
 
                         // textured pedestrian
-                        marker.color.r = 1.0;
-                        marker.color.g = 1.0;
-                        marker.color.b = 1.0;
-                        marker.color.a = 1.0;
+//                        marker.color.r = 1.0;
+//                        marker.color.g = 1.0;
+//                        marker.color.b = 1.0;
+//                        marker.color.a = 1.0;
 //                        marker.color.r = 1.0;
 //                        marker.color.g = 0.0;
 //                        marker.color.b = 0.0;
 //                        marker.color.a = 1.0;
+
+                        marker.color.r = rgb;
+                        marker.color.g = rgb;
+                        marker.color.b = rgb;
+                        marker.color.a = alpha_mesh;
                         marker.mesh_use_embedded_materials = true;
                         //
 
@@ -358,10 +382,10 @@ public:
 //                        marker.color.b = 0.0;
 
                         // textured pedestrian
-                        marker.color.r = 1.0;
-                        marker.color.g = 1.0;
-                        marker.color.b = 1.0;
-                        marker.color.a = 1.0;
+                        marker.color.r = rgb;
+                        marker.color.g = rgb;
+                        marker.color.b = rgb;
+                        marker.color.a = alpha_mesh;
                         marker.mesh_use_embedded_materials = true;
                         //
 
@@ -385,10 +409,10 @@ public:
 //                        marker.color.b = 0.0;
 
                         // textured pedestrian
-                        marker.color.r = 1.0;
-                        marker.color.g = 1.0;
-                        marker.color.b = 1.0;
-                        marker.color.a = 1.0;
+                        marker.color.r = rgb;
+                        marker.color.g = rgb;
+                        marker.color.b = rgb;
+                        marker.color.a = alpha_mesh;
                         marker.mesh_use_embedded_materials = true;
                         //
 
@@ -443,7 +467,7 @@ public:
                     crossing_prediction.pose.position.y = 0;
                     crossing_prediction.scale.x = 0.1; // width
 
-                    crossing_prediction.color.a = crossing_probability;
+                    crossing_prediction.color.a = sqrt(crossing_probability);
                     crossing_prediction.color.r = 1.0;
                     crossing_prediction.color.g = 0.0;
                     crossing_prediction.color.b = 0.0;
@@ -546,6 +570,7 @@ public:
 private:
     std::vector<std::shared_ptr<Pedestrian>> pedestrians_;
     tf::TransformListener & tf_listener_;
+    bool full_observability_;
 };
 
 // obstacle creation
@@ -603,6 +628,7 @@ int main(int argc, char **argv)
 
     int N = 1;
     double p_crossing = 0.1;
+    bool full_observability = false;
 
     ROS_INFO_STREAM("Launch pdestrian control..");
 
@@ -614,6 +640,7 @@ int main(int argc, char **argv)
     n.getParam("n_pedestrians", N);
     n.getParam("p_crossing", p_crossing);
     n.getParam("road_width", lane_width);
+    n.getParam("full_observability", full_observability);
 
     ros::Publisher markers_publisher = n.advertise<visualization_msgs::MarkerArray>("/lgp_pedestrian_belief/marker_array", 1000);
     std::vector<ros::Publisher> ctrl_publishers, pose_publishers;
@@ -627,7 +654,7 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(10);
 
     // loop variables
-    PedestrianObserver observer(N, tf_listener);
+    PedestrianObserver observer(N, tf_listener, full_observability);
 
     while(ros::ok())
     {
