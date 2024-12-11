@@ -162,11 +162,12 @@ private:
 class ObstacleObserver
 {
 public:
-    ObstacleObserver(tf::TransformListener & tf_listener, int N)
+    ObstacleObserver(tf::TransformListener & tf_listener, int N, bool full_observability)
         : tf_listener_(tf_listener)
         , obstacles_(N)
         , ref_xs_(N)
         , scale_noise_(0.2)
+        , full_observability_(full_observability)
     {
 
     }
@@ -187,7 +188,20 @@ public:
             {
                 const auto obstacle_position = obstacle->get_position();
                 const auto signed_dist_to_obstacle = obstacle_position.x - car_position.x;
-                const auto existence_probability = obstacle->existence_probability(signed_dist_to_obstacle);
+                auto existence_probability = obstacle->existence_probability(signed_dist_to_obstacle);
+
+                if(full_observability_)
+                {
+                  if(dynamic_cast<TruePositive*>(obstacle.get()))
+                  {
+                    existence_probability = 1.0;
+                  }
+                  else
+                  {
+                    existence_probability = 0.0;
+                  }
+                }
+
                 const double x = obstacle_position.x;
                 const double y = obstacle_position.y;
 //                const double sx = 2.0;
@@ -208,7 +222,7 @@ public:
                                                                              sx,
                                                                              sy,
                                                                              sz,
-                                                                             existence_probability,
+                                                                             sqrt(existence_probability),
                                                                              obstacle->id_);
 
                 // collision - model position and geometry
@@ -217,7 +231,7 @@ public:
                                                                                sx,
                                                                                sy,
                                                                                sz - 0.5 - 0.5 * i,
-                                                                               existence_probability,
+                                                                               sqrt(existence_probability),
                                                                                obstacle->id_);
 
 
@@ -277,6 +291,7 @@ private:
 
     // params
     const double scale_noise_;
+    const bool full_observability_;
 };
 
 static std::shared_ptr<Obstacle> draw_new_obstacle(uint obstacle_id,
@@ -369,6 +384,7 @@ int main(int argc, char **argv)
 
     double p_obstacle = 0.1;
     double certainty_distance_offset = 10.0;
+    bool full_observability{false};
 
     ROS_INFO_STREAM("Launch obstacle control..");
 
@@ -379,6 +395,8 @@ int main(int argc, char **argv)
     int N = 1; // number of obsatcles
     n.getParam("n_obstacles", N);
     n.getParam("p_obstacle", p_obstacle);
+    n.getParam("full_observability", full_observability);
+
     n.getParam("road_width", lane_width);
     n.getParam("certainty_distance_offset", certainty_distance_offset);
 
@@ -392,7 +410,7 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(10);
 
     // loop variables
-    ObstacleObserver observer(tf_listener, N);
+    ObstacleObserver observer(tf_listener, N, full_observability);
 
     Position2D car_position{0}, previous_position{0};
     double speed = 0;
