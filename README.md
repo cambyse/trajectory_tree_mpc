@@ -1,10 +1,7 @@
 This repo contains the code for MPC examples using trajectory-tree optimization.
 
-[Accompanying video](https://youtu.be/Ju5hv2gIlxw)
-
 A standalone version of the solver can be found by following the link [Solver only](https://github.com/ControlTrees/solver).
 This version needs less dependencies (e.g. no ros) and doesn't contain the examples of the paper.
-
 
 # Dependencies
 
@@ -28,15 +25,15 @@ They can be installed by calling `sudo apt install PACKAGE_NAME`.
 # Build
 Clone the repository and its submodules into your catkin workspace:
 ```bash
-git clone --recursive git@github.com:ControlTrees/icra2021.git
+git clone --recursive git@github.com:cambyse/trajectory_tree_mpc.git
 ```
-This will clone the code related to the examples and two submodules (https://github.com/ControlTrees/rai, and https://github.com/ControlTrees/tamp).
+This will clone the code related to the examples and two submodules (https://github.com/cambyse/rai_for_mpc, and https://github.com/cambyse/tamp_for_mpc).
 
 ### install gazebo models
 The car, obstacle and pedestrian gazebo models are part of the repository and must be copied to the gazebo folder containing all models.
 This gazebo folder is typicall under `~/.gazebo/models`.
 ```bash
-cd icra2021/lgp_car_models
+cd trajectory_tree_mpc/lgp_car_models
 cp -r * ~/.gazebo/models
 ```
 
@@ -56,7 +53,7 @@ catkin_make
 
 # Execute tests
 Open a terminal in the folder corresponding to the `control_tree_car` package in `build` folder of the catkin workspace.
-This is typically `${CATKIN_WORKSPACE}/build/icra_2021/control_tree_car` where `CATKIN_WORKSPACE` is the root of the catkin workspace.
+This is typically `${CATKIN_WORKSPACE}/build/trajectory_tree_mpc/control_tree_car` where `CATKIN_WORKSPACE` is the root of the catkin workspace.
 
 The tests can be launched using ctest:
 ```bash
@@ -75,7 +72,7 @@ roslaunch control_tree_car pedestrian.launch
 
 In the second terminal, type the following command, it will launch the simulator.
 ```bash
-gzserver src/icra_2021/lgp_car_gazebo_plugin/world/pedestrian_4.world
+gzserver src/trajectory_tree_mpc/lgp_car_gazebo_plugin/world/pedestrian_4.world
 ```
 
 ![Image](control_tree_car/data/doc/pedestrians.png)
@@ -90,7 +87,7 @@ roslaunch control_tree_car obstacle_avoidance.launch
 
 In the second terminal, type the following command, it will launch the simulator.
 ```bash
-gzserver src/icra_2021/lgp_car_gazebo_plugin/world/obstacle_avoidance_2.world
+gzserver src/trajectory_tree_mpc/lgp_car_gazebo_plugin/world/obstacle_avoidance_2.world
 ```
 
 ![Image](control_tree_car/data/doc/obstacles.png)
