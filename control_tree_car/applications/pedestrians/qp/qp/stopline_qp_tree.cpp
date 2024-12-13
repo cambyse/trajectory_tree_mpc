@@ -170,11 +170,11 @@ TimeCostPair StopLineQPTree::plan()
 //    std::abort();
     }*/
 
-    if(U_sol_.rows())
-    {
-        acc_plotter_.update(tree_->varss, tree_->scaless, [this](int i){return U_sol_(i);});
-        vel_plotter_.update(tree_->varss, tree_->scaless, [this](int i){return X_sol_(2*i+1);});
-    }
+//    if(U_sol_.rows())
+//    {
+//        acc_plotter_.update(tree_->varss, tree_->scaless, [this](int i){return U_sol_(i);});
+//        vel_plotter_.update(tree_->varss, tree_->scaless, [this](int i){return X_sol_(2*i+1);});
+//    }
 
     std::cerr << "speed:" << o.v << " costs:" << model_.cost(x0_, U_sol_[0], xd) << std::endl;
 
