@@ -1,9 +1,10 @@
 This repo contains the code for MPC examples using trajectory-tree optimization.
 
-A standalone version of the solver can be found by following the link [Solver only](https://github.com/ControlTrees/solver).
-This version needs less dependencies (e.g. no ros) and doesn't contain the examples of the paper.
-
 # Building Examples
+
+For a straightforward installation that works seamlessly on most Ubuntu systems (20.04 and later) and MacOS, we recommend using the Dockerized setup. However, this may result in slightly reduced performance and less smooth visualization due to graphical performance limitations within Docker.
+
+Alternatively, a native system installation is possible but may require additional steps to have all correct dependencies necessary to compile the examples.
 
 ## Building using Docker
 
@@ -29,7 +30,7 @@ This creates a docker image called `mpc`. It installs the dependencies, clones r
 docker run --privileged --net=host -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -it tamp /bin/bash
 ```
 
-The above command runs the docker image and opens a bash terminal. The options `--net=host -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix` are to forward the host display to the Docker container.
+The above command runs the docker image and opens a bash terminal. The options `--privileged --net=host -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix` are to forward the host display to the Docker container.
 
 ## Building on the native system
 
@@ -94,7 +95,7 @@ ctest .
 
 # Launch examples
 
-First one needs to source the ros environment
+First one needs to source the ros environment.
 ```bash
 source /opt/ros/noetic/setup.bash
 source devel/setup.bash
@@ -129,3 +130,7 @@ gzserver src/trajectory_tree_mpc/lgp_car_gazebo_plugin/world/obstacle_avoidance_
 ```
 
 ![Image](control_tree_car/data/doc/obstacles.png)
+
+> **Note:** A standalone version of the solver can be found by following the link [Solver only](https://github.com/ControlTrees/solver).
+This version needs less dependencies (e.g. no ros) and doesn't contain the examples of the paper.
+
