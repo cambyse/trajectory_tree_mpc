@@ -7,7 +7,7 @@ project(${project_name})
 # Locate depedencies
 ##################################
 find_package(Boost 1.40.0 COMPONENTS filesystem system iostreams REQUIRED)
-find_package(CGAL)
+#find_package(CGAL)
 find_package(osqp REQUIRED)
 
 #################################
