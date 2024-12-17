@@ -1,6 +1,6 @@
 This repo contains the code for MPC examples using trajectory-tree optimization.
 
-# Building Examples
+# Building the Examples
 
 For a straightforward installation that works seamlessly on most Ubuntu systems (20.04 and later) and MacOS, we recommend using the Dockerized setup. However, this may result in slightly reduced performance and less smooth visualization due to graphical performance limitations within Docker.
 
