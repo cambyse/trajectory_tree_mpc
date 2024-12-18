@@ -26,10 +26,8 @@ This creates a docker image called `mpc`. It installs the dependencies, clones r
 
 #### Run Docker image
 
-The easiest way to run the examples is to open two terminal connecting to the same docker image. To this end, first launch the image in detached mode
-
 ```bash
-docker run --privileged --net=host -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -it -d --name shared-mpc mpc
+docker run --privileged --net=host -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -it mpc /bin/bash
 ```
 
 The above command runs the docker image and opens a bash terminal. The options `--privileged --net=host -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix` are to forward the host display to the Docker container.
@@ -97,12 +95,6 @@ ctest .
 
 # Launch examples
 
-Open two terminals in the catkin workspace. When running the examples within docker, one needs additionally to connect to the shared docker image:
-
-```bash
-docker exec -it shared-mpc /bin/bash
-```
-
 Source the ros environment.
 ```bash
 source /opt/ros/noetic/setup.bash
@@ -111,30 +103,23 @@ source devel/setup.bash
 
 ### Pedestrian example
 
-
-In the first terminal, launch the planner and the visualization RViz.
+This command launches the planner, simulation and visualization RViz.
 ```bash
-roslaunch control_tree_car pedestrian.launch
+gzserver src/trajectory_tree_mpc/lgp_car_gazebo_plugin/world/pedestrian_4.world & first_pid=$! && ( trap "kill $first_pid" SIGINT SIGTERM EXIT; roslaunch control_tree_car pedestrian.launch )
 ```
 
-In the second terminal, launch the simulator.
-```bash
-gzserver src/trajectory_tree_mpc/lgp_car_gazebo_plugin/world/pedestrian_4.world
-```
+The simulation using gazebo is run in detached mode and automatically killed once the ros node are stopped.
 
 ![Image](control_tree_car/data/doc/pedestrians.png)
 
 ### Obstacle avoidance example
 
-In the first terminal, launch the planner and the visualization RViz.
 ```bash
-roslaunch control_tree_car obstacle_avoidance.launch
+gzserver src/trajectory_tree_mpc/lgp_car_gazebo_plugin/world/obstacle_avoidance_2.world & first_pid=$! && ( trap "kill $first_pid" SIGINT SIGTERM EXIT; roslaunch control_tree_car obstacle_avoidance.launch )
 ```
 
-In the second terminal, launch the simulator.
-```bash
-gzserver src/trajectory_tree_mpc/lgp_car_gazebo_plugin/world/obstacle_avoidance_2.world
-```
+The simulation using gazebo is run in detached mode and automatically killed once the ros node are stopped.
+
 
 ![Image](control_tree_car/data/doc/obstacles.png)
 
